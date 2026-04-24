@@ -5,7 +5,7 @@ import {
   defaultSettings,
   numberValue,
 } from './payroll'
-import { loadAll, saveSettings, saveEntries } from './db'
+import { loadAll, saveSettings, saveEntries, saveAll } from './db'
 
 /* ── Styles ── */
 import './styles/animations.css'
@@ -66,6 +66,40 @@ function App() {
     const nextEntries = entries.filter((entry) => entry.id !== id)
     setEntries(nextEntries)
     saveEntries(nextEntries)
+  }
+
+  function handleExport() {
+    const data = { settings, entries }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `work-picker-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handleImport(event) {
+    const file = event.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result)
+        if (data.settings && Array.isArray(data.entries)) {
+          setSettings(data.settings)
+          setEntries(data.entries)
+          saveAll(data.settings, data.entries)
+          alert('กู้คืนข้อมูลสำเร็จ!')
+        } else {
+          alert('ไฟล์ไม่รองรับ หรือข้อมูลไม่ครบถ้วน')
+        }
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการอ่านไฟล์')
+      }
+    }
+    reader.readAsText(file)
+    event.target.value = '' // Reset input
   }
 
   if (isLoading) {
@@ -161,6 +195,8 @@ function App() {
         <SettingsModal
           onClose={() => setActiveModal(null)}
           onUpdate={updateSettings}
+          onExport={handleExport}
+          onImport={handleImport}
           payroll={payroll}
           settings={settings}
         />
