@@ -145,19 +145,6 @@ function App() {
         )}
       </section>
 
-      {/* Floating Action Button */}
-      <button
-        aria-label="เพิ่มรายการ OT"
-        className="fab"
-        onClick={() => setActiveModal('entry')}
-        type="button"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-      </button>
-
       {/* Bottom Navigation */}
       <nav className="bottom-nav" aria-label="เมนูหลัก">
         <button onClick={() => setActiveModal(null)} type="button" className={!activeModal ? 'active' : ''}>
@@ -177,6 +164,15 @@ function App() {
             <line x1="6" y1="20" x2="6" y2="14" />
           </svg>
           <span className="nav-label">สรุป</span>
+        </button>
+        <button onClick={() => setActiveModal('entry')} type="button" className={`nav-center-action ${activeModal === 'entry' ? 'active' : ''}`}>
+          <div style={{ background: 'var(--accent)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2px', boxShadow: '0 4px 12px var(--accent-glow)' }}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: '24px', height: '24px', stroke: '#fff', strokeWidth: '2.5', strokeLinecap: 'round', fill: 'none' }}>
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+          <span className="nav-label" style={{ fontSize: '10px' }}>เพิ่ม OT</span>
         </button>
         <button onClick={() => setActiveModal('settings')} type="button" className={activeModal === 'settings' ? 'active' : ''}>
           <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">

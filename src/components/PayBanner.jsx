@@ -24,8 +24,7 @@ export default function PayBanner({ payroll, isPrivacyMode, onTogglePrivacy }) {
       <p className="banner-details">
         OT <span>{payroll.totals.hours.toFixed(1)} ชม.</span> ได้เพิ่ม{' '}
         <span>{displayMoney(payroll.totals.ot)}</span> ค่าข้าว{' '}
-        <span>{displayMoney(payroll.mealAllowance)}</span> หักรวม{' '}
-        <span>{displayMoney(payroll.totalDeductions)}</span>
+        <span>{displayMoney(payroll.mealAllowance)}</span>
       </p>
     </section>
   )
