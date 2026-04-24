@@ -1,0 +1,75 @@
+/* ══════════════════════════════════════
+   Summary / Breakdown — Mobile
+   ══════════════════════════════════════ */
+
+.breakdown {
+  /* Frosted glass */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  margin-top: 12px;
+  padding: 16px;
+  animation: fade-in-up var(--duration-slow) var(--ease-out) both;
+  animation-delay: 100ms;
+}
+
+.breakdown h2 {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+.breakdown-row {
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  /* Comfortable touch target for row */
+  padding: 12px 0;
+}
+
+.breakdown-row span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.breakdown-row strong {
+  color: var(--ink-secondary);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Total row */
+.breakdown-row.total {
+  border-top: 1px solid rgba(34, 211, 238, 0.15);
+  margin-top: 4px;
+  padding-top: 14px;
+}
+
+.breakdown-row.total span {
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.breakdown-row.total strong {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* Sub rows (holiday breakdown) */
+.breakdown-row.sub-row {
+  padding-left: 14px;
+}
+
+.breakdown-row.sub-row span,
+.breakdown-row.sub-row strong {
+  color: var(--muted);
+  font-size: 12px;
+}

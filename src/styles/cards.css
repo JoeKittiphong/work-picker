@@ -1,0 +1,175 @@
+/* ══════════════════════════════════════
+   Entry Cards — Mobile Optimized
+   ══════════════════════════════════════ */
+
+.entry-list {
+  display: grid;
+  gap: 8px;
+}
+
+.entry-card {
+  align-items: center;
+  /* Frosted glass */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  /* Comfortable mobile padding */
+  padding: 14px 16px;
+  text-align: left;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-normal) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+
+  /* Stagger animation */
+  animation: card-enter var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--stagger-i, 0) * 60ms);
+}
+
+.entry-card:active {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(0.98);
+}
+
+@media (hover: hover) {
+  .entry-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.entry-card h2 {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 5px 0 2px;
+}
+
+.entry-card p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+/* ── Type pill badges ── */
+
+.type-pill {
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 3px 9px;
+}
+
+.type-pill.teal {
+  background: var(--pill-teal-bg);
+  color: var(--pill-teal-text);
+}
+
+.type-pill.yellow {
+  background: var(--pill-yellow-bg);
+  color: var(--pill-yellow-text);
+}
+
+.type-pill.red {
+  background: var(--pill-red-bg);
+  color: var(--pill-red-text);
+}
+
+/* ── Entry money column ── */
+
+.entry-money {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.entry-money strong {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.entry-money span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.entry-money button {
+  background: transparent;
+  border: 0;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 800;
+  /* Adequate touch target */
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--radius-sm);
+  transition:
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.entry-money button:active {
+  background: var(--danger-bg);
+}
+
+/* ══════════════════════════════════════
+   Summary Cards
+   ══════════════════════════════════════ */
+
+.summary-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summary-card {
+  /* Frosted glass */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: left;
+  transition:
+    background var(--duration-fast) ease,
+    transform var(--duration-normal) var(--ease-out);
+
+  animation: card-enter var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--stagger-i, 0) * 80ms);
+}
+
+.summary-card:active {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(0.98);
+}
+
+.summary-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.summary-card strong {
+  color: var(--ink);
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 6px;
+}

@@ -1,0 +1,218 @@
+/* ══════════════════════════════════════
+   Form Controls — Mobile Optimized
+   ══════════════════════════════════════ */
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ── Input / Select ── */
+
+input,
+select {
+  appearance: none;
+  /* Frosted glass inputs */
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  /* Mobile-friendly height */
+  min-height: 48px;
+  padding: 0 14px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease,
+    background var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input::placeholder {
+  color: var(--muted);
+}
+
+input:focus,
+select:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--accent-glow);
+  outline-offset: 2px;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%2367e8f9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+}
+
+/* Color scheme for date input */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+/* ── Labels ── */
+
+label,
+.number-field {
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.number-label {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.field-help {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+/* ── Auto hours readonly ── */
+
+.auto-hours {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 5px;
+  min-height: 48px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.auto-hours span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.auto-hours strong {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ── Primary button ── */
+
+.primary-button {
+  background: var(--accent-gradient);
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  /* Mobile-friendly touch target */
+  min-height: 52px;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--duration-fast) ease,
+    box-shadow var(--duration-normal) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primary-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 50%);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.primary-button:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .primary-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px var(--accent-glow);
+  }
+
+  .primary-button:hover::before {
+    opacity: 1;
+  }
+}
+
+/* ── Entry form layout ── */
+
+.entry-form {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Settings list ── */
+
+.settings-list {
+  display: grid;
+  gap: 16px;
+}
+
+.rate-note {
+  align-items: center;
+  /* Frosted glass */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 16px 18px;
+}
+
+.rate-note span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rate-note strong {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* ── Responsive form grid ── */
+
+@media (min-width: 640px) {
+  .entry-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .entry-form label:last-of-type,
+  .entry-form .primary-button {
+    grid-column: 1 / -1;
+  }
+}
