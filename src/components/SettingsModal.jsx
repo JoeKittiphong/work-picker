@@ -31,7 +31,7 @@ export default function SettingsModal({ onClose, onUpdate, onExport, onImport, p
             <strong style={{ color: 'var(--accent)', fontSize: '16px' }}>{formatMoney(payroll.hourlyRate)}</strong>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
           <NumberField
             label="เงินเดือนฐาน"
             value={settings.salary}
@@ -47,14 +47,9 @@ export default function SettingsModal({ onClose, onUpdate, onExport, onImport, p
             value={settings.diligence}
             onChange={(value) => onUpdate('diligence', value)}
           />
-          <NumberField
-            label="รายรับอื่น ๆ"
-            value={settings.otherIncome}
-            onChange={(value) => onUpdate('otherIncome', value)}
-          />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '8px' }}>
           <NumberField
             label="ประกันสังคม (%)"
             value={settings.socialSecurityPercent}
@@ -68,6 +63,14 @@ export default function SettingsModal({ onClose, onUpdate, onExport, onImport, p
             onChange={(value) => onUpdate('providentFundPercent', value)}
             helper={`หัก ${formatMoney(payroll.providentFundDeduction)}`}
             step="0.1"
+          />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '8px' }}>
+          <NumberField
+            label="รายรับอื่น ๆ"
+            value={settings.otherIncome}
+            onChange={(value) => onUpdate('otherIncome', value)}
           />
           <NumberField
             label="รายการหักอื่น"
