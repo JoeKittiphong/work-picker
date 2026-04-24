@@ -20,6 +20,7 @@ import EntryList from './components/EntryList'
 import EntryModal from './components/EntryModal'
 import SummaryModal from './components/SummaryModal'
 import SettingsModal from './components/SettingsModal'
+import QrCodeModal from './components/QrCodeModal'
 
 function App() {
   const [settings, setSettings] = useState(defaultSettings)
@@ -27,6 +28,7 @@ function App() {
   const [activeModal, setActiveModal] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isPrivacyMode, setIsPrivacyMode] = useState(false)
+  const [deletingEntryId, setDeletingEntryId] = useState(null)
 
   const filteredEntries = entries.filter((entry) => {
     if (settings.periodStart && entry.date < settings.periodStart) return false
@@ -62,10 +64,17 @@ function App() {
     setActiveModal(null)
   }
 
-  function removeEntry(id) {
-    const nextEntries = entries.filter((entry) => entry.id !== id)
-    setEntries(nextEntries)
-    saveEntries(nextEntries)
+  function requestRemoveEntry(id) {
+    setDeletingEntryId(id)
+  }
+
+  function confirmRemoveEntry() {
+    if (deletingEntryId) {
+      const nextEntries = entries.filter((entry) => entry.id !== deletingEntryId)
+      setEntries(nextEntries)
+      saveEntries(nextEntries)
+      setDeletingEntryId(null)
+    }
   }
 
   function handleExport() {
@@ -131,7 +140,7 @@ function App() {
           <EntryList
             entries={filteredEntries}
             hourlyRate={payroll.hourlyRate}
-            onRemove={removeEntry}
+            onRemove={requestRemoveEntry}
           />
         )}
       </section>
@@ -151,7 +160,7 @@ function App() {
 
       {/* Bottom Navigation */}
       <nav className="bottom-nav" aria-label="เมนูหลัก">
-        <button className="active" type="button">
+        <button onClick={() => setActiveModal(null)} type="button" className={!activeModal ? 'active' : ''}>
           <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
@@ -161,7 +170,7 @@ function App() {
           </svg>
           <span className="nav-label">บันทึก</span>
         </button>
-        <button onClick={() => setActiveModal('summary')} type="button">
+        <button onClick={() => setActiveModal('summary')} type="button" className={activeModal === 'summary' ? 'active' : ''}>
           <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
             <line x1="18" y1="20" x2="18" y2="10" />
             <line x1="12" y1="20" x2="12" y2="4" />
@@ -169,12 +178,21 @@ function App() {
           </svg>
           <span className="nav-label">สรุป</span>
         </button>
-        <button onClick={() => setActiveModal('settings')} type="button">
+        <button onClick={() => setActiveModal('settings')} type="button" className={activeModal === 'settings' ? 'active' : ''}>
           <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
           <span className="nav-label">ตั้งค่า</span>
+        </button>
+        <button onClick={() => setActiveModal('qrcode')} type="button" className={activeModal === 'qrcode' ? 'active' : ''}>
+          <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+          </svg>
+          <span className="nav-label">แชร์</span>
         </button>
       </nav>
 
@@ -200,6 +218,44 @@ function App() {
           payroll={payroll}
           settings={settings}
         />
+      )}
+
+      {activeModal === 'qrcode' && (
+        <QrCodeModal onClose={() => setActiveModal(null)} />
+      )}
+
+      {deletingEntryId && (
+        <div className="modal-backdrop" role="presentation" onClick={() => setDeletingEntryId(null)}>
+          <section
+            aria-modal="true"
+            className="app-modal"
+            role="dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal-header">
+              <div>
+                <h2>ยืนยันการลบ</h2>
+                <p>คุณต้องการลบรายการ OT นี้ใช่หรือไม่?</p>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setDeletingEntryId(null)}
+                style={{ padding: '14px', background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemoveEntry}
+                style={{ padding: '14px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.5)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                ลบรายการ
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   )

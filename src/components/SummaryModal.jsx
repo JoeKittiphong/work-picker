@@ -1,18 +1,9 @@
 import { formatMoney, numberValue, otTypes } from '../payroll'
 import AppModal from './AppModal'
-import SummaryCard from './SummaryCard'
 
 export default function SummaryModal({ entries, onClose, payroll, settings }) {
   return (
     <AppModal onClose={onClose} title="สรุป">
-      <div className="summary-grid">
-        <SummaryCard label="เงินเดือน" value={formatMoney(settings.salary)} staggerIndex={0} />
-        <SummaryCard label="ค่า OT" value={formatMoney(payroll.totals.ot)} staggerIndex={1} />
-        <SummaryCard label="ค่าข้าว OT" value={formatMoney(payroll.mealAllowance)} staggerIndex={2} />
-        <SummaryCard label="สวัสดิการ" value={formatMoney(settings.welfare)} staggerIndex={3} />
-        <SummaryCard label="เบี้ยขยัน" value={formatMoney(settings.diligence)} staggerIndex={4} />
-      </div>
-
       <div className="breakdown">
         <h2>รายละเอียดรอบเงินเดือน</h2>
         {Object.entries(otTypes).map(([key, type]) => (
