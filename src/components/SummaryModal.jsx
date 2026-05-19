@@ -1,7 +1,8 @@
+import { memo } from 'react'
 import { formatMoney, numberValue, otTypes } from '../payroll'
 import AppModal from './AppModal'
 
-export default function SummaryModal({ entries, onClose, payroll, settings }) {
+function SummaryModal({ entries, onClose, payroll, settings }) {
   return (
     <AppModal onClose={onClose} title="สรุป">
       <div className="breakdown">
@@ -50,3 +51,5 @@ export default function SummaryModal({ entries, onClose, payroll, settings }) {
     </AppModal>
   )
 }
+
+export default memo(SummaryModal)

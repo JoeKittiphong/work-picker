@@ -1,4 +1,6 @@
-export default function NumberField({ label, value, onChange, helper, step = '0.5' }) {
+import { memo } from 'react'
+
+function NumberField({ label, value, onChange, helper, step = '0.5' }) {
   return (
     <label className="number-field">
       <span className="number-label">
@@ -16,3 +18,5 @@ export default function NumberField({ label, value, onChange, helper, step = '0.
     </label>
   )
 }
+
+export default memo(NumberField)

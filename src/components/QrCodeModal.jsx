@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import AppModal from './AppModal'
 
-export default function QrCodeModal({ onClose }) {
+function QrCodeModal({ onClose }) {
   const url = 'https://work-picker.netlify.app/'
 
   return (
@@ -27,3 +28,5 @@ export default function QrCodeModal({ onClose }) {
     </AppModal>
   )
 }
+
+export default memo(QrCodeModal)

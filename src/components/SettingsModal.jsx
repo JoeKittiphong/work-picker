@@ -1,9 +1,10 @@
+import { memo } from 'react'
 import { formatMoney } from '../payroll'
 import AppModal from './AppModal'
 import NumberField from './NumberField'
 import DateField from './DateField'
 
-export default function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, settings }) {
+function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, settings }) {
   return (
     <AppModal
       dateHint="เปอร์เซ็นต์หักจะคิดจากเงินเดือนฐาน"
@@ -99,3 +100,5 @@ export default function SettingsModal({ onClose, onUpdate, onExport, onImport, p
     </AppModal>
   )
 }
+
+export default memo(SettingsModal)

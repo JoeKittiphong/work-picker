@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import {
   formatMoney,
   formatDateWithWeekday,
@@ -44,7 +44,7 @@ function getMonthDays(monthKey) {
   return days
 }
 
-export default function CalendarModal({ entries, onClose, settings }) {
+function CalendarModal({ entries, onClose, settings }) {
   const hourlyRate = getHourlyRate(settings)
 
   const monthKeys = useMemo(() => {
@@ -211,3 +211,5 @@ export default function CalendarModal({ entries, onClose, settings }) {
     </AppModal>
   )
 }
+
+export default memo(CalendarModal)

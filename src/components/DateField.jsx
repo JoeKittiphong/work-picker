@@ -1,4 +1,6 @@
-export default function DateField({ label, value, onChange, helper }) {
+import { memo } from 'react'
+
+function DateField({ label, value, onChange, helper }) {
   return (
     <label className="number-field">
       <span className="number-label">
@@ -13,3 +15,5 @@ export default function DateField({ label, value, onChange, helper }) {
     </label>
   )
 }
+
+export default memo(DateField)

@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import EntryCard from './EntryCard'
 
-export default function EntryList({ entries, hourlyRate, onRemove }) {
+function EntryList({ entries, hourlyRate, onRemove }) {
   return (
     <div className="entry-list">
       {entries.map((entry, index) => (
@@ -15,3 +16,5 @@ export default function EntryList({ entries, hourlyRate, onRemove }) {
     </div>
   )
 }
+
+export default memo(EntryList)

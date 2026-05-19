@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import {
   formatDateWithWeekday,
   formatMoney,
@@ -7,7 +8,7 @@ import {
   otTypes,
 } from '../payroll'
 
-export default function EntryCard({ entry, hourlyRate, onRemove, staggerIndex = 0 }) {
+function EntryCard({ entry, hourlyRate, onRemove, staggerIndex = 0 }) {
   const type = otTypes[entry.type] ?? otTypes.workday
   const amount = getEntryAmount(entry, hourlyRate)
   const hours = getEntryHours(entry)
@@ -40,3 +41,5 @@ export default function EntryCard({ entry, hourlyRate, onRemove, staggerIndex = 
     </article>
   )
 }
+
+export default memo(EntryCard)

@@ -64,6 +64,23 @@ export function numberValue(value) {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
+export function getLatestEntryDate(entries) {
+  return entries.reduce((latest, entry) => {
+    if (!latest || entry.date > latest) return entry.date
+    return latest
+  }, '')
+}
+
+export function isEntryWithinRange(entry, startDate, endDate) {
+  if (startDate && entry.date < startDate) return false
+  if (endDate && entry.date > endDate) return false
+  return true
+}
+
+export function filterEntriesByDateRange(entries, startDate, endDate) {
+  return entries.filter((entry) => isEntryWithinRange(entry, startDate, endDate))
+}
+
 export function getHourlyRate(settings) {
   return (
     numberValue(settings.salary) /

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   calculatePayroll,
   createDefaultEntries,
   defaultSettings,
+  filterEntriesByDateRange,
+  getLatestEntryDate,
   numberValue,
 } from './payroll'
 import { loadAll, saveSettings, saveEntries, saveAll } from './db'
@@ -32,25 +34,26 @@ function App() {
   const [isPrivacyMode, setIsPrivacyMode] = useState(false)
   const [deletingEntryId, setDeletingEntryId] = useState(null)
 
-  const latestEntryDate = entries.reduce((latest, entry) => {
-    if (!latest || entry.date > latest) return entry.date
-    return latest
-  }, '')
+  const latestEntryDate = useMemo(() => getLatestEntryDate(entries), [entries])
 
-  const visibleEntries = entries.filter((entry) => {
-    if (settings.periodStart && entry.date < settings.periodStart) return false
-    if (latestEntryDate && entry.date > latestEntryDate) return false
-    return true
-  })
+  const visibleEntries = useMemo(
+    () => filterEntriesByDateRange(entries, settings.periodStart, latestEntryDate),
+    [entries, latestEntryDate, settings.periodStart],
+  )
 
-  const summaryEntries = entries.filter((entry) => {
-    if (settings.periodStart && entry.date < settings.periodStart) return false
-    if (settings.periodEnd && entry.date > settings.periodEnd) return false
-    return true
-  })
+  const summaryEntries = useMemo(
+    () => filterEntriesByDateRange(entries, settings.periodStart, settings.periodEnd),
+    [entries, settings.periodEnd, settings.periodStart],
+  )
 
-  const payroll = calculatePayroll(settings, visibleEntries)
-  const summaryPayroll = calculatePayroll(settings, summaryEntries)
+  const payroll = useMemo(
+    () => calculatePayroll(settings, visibleEntries),
+    [settings, visibleEntries],
+  )
+  const summaryPayroll = useMemo(
+    () => calculatePayroll(settings, summaryEntries),
+    [settings, summaryEntries],
+  )
 
   /* ── Load from IndexedDB on mount ── */
   useEffect(() => {
@@ -61,37 +64,41 @@ function App() {
     })
   }, [])
 
-  function updateSettings(key, value) {
-    let finalValue = value;
+  const updateSettings = useCallback((key, value) => {
+    let finalValue = value
     if (key !== 'periodStart' && key !== 'periodEnd') {
-      finalValue = numberValue(value);
+      finalValue = numberValue(value)
     }
     const nextSettings = { ...settings, [key]: finalValue }
     setSettings(nextSettings)
     saveSettings(nextSettings)
-  }
+  }, [settings])
 
-  function addEntry(entry) {
-    const nextEntries = [entry, ...entries]
-    setEntries(nextEntries)
-    saveEntries(nextEntries)
-    setActiveModal(null)
-  }
-
-  function requestRemoveEntry(id) {
-    setDeletingEntryId(id)
-  }
-
-  function confirmRemoveEntry() {
-    if (deletingEntryId) {
-      const nextEntries = entries.filter((entry) => entry.id !== deletingEntryId)
-      setEntries(nextEntries)
+  const addEntry = useCallback((entry) => {
+    setEntries((prev) => {
+      const nextEntries = [entry, ...prev]
       saveEntries(nextEntries)
+      return nextEntries
+    })
+    setActiveModal(null)
+  }, [])
+
+  const requestRemoveEntry = useCallback((id) => {
+    setDeletingEntryId(id)
+  }, [])
+
+  const confirmRemoveEntry = useCallback(() => {
+    if (deletingEntryId) {
+      setEntries((prev) => {
+        const nextEntries = prev.filter((entry) => entry.id !== deletingEntryId)
+        saveEntries(nextEntries)
+        return nextEntries
+      })
       setDeletingEntryId(null)
     }
-  }
+  }, [deletingEntryId])
 
-  function handleExport() {
+  const handleExport = useCallback(() => {
     const data = { settings, entries }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -100,9 +107,9 @@ function App() {
     a.download = `work-picker-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
-  }
+  }, [entries, settings])
 
-  function handleImport(event) {
+  const handleImport = useCallback((event) => {
     const file = event.target.files[0]
     if (!file) return
     const reader = new FileReader()
@@ -123,7 +130,7 @@ function App() {
     }
     reader.readAsText(file)
     event.target.value = '' // Reset input
-  }
+  }, [])
 
   if (isLoading) {
     return (
