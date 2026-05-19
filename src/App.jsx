@@ -12,6 +12,7 @@ import './styles/animations.css'
 import './styles/forms.css'
 import './styles/cards.css'
 import './styles/summary.css'
+import './styles/calendar.css'
 import './App.css'
 
 /* ── Components ── */
@@ -19,6 +20,7 @@ import PayBanner from './components/PayBanner'
 import EntryList from './components/EntryList'
 import EntryModal from './components/EntryModal'
 import SummaryModal from './components/SummaryModal'
+import CalendarModal from './components/CalendarModal'
 import SettingsModal from './components/SettingsModal'
 import QrCodeModal from './components/QrCodeModal'
 
@@ -177,6 +179,15 @@ function App() {
           </svg>
           <span className="nav-label">สรุป</span>
         </button>
+        <button onClick={() => setActiveModal('calendar')} type="button" className={activeModal === 'calendar' ? 'active' : ''}>
+          <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <line x1="3" y1="9" x2="21" y2="9" />
+            <line x1="8" y1="3.5" x2="8" y2="7" />
+            <line x1="16" y1="3.5" x2="16" y2="7" />
+          </svg>
+          <span className="nav-label">ปฏิทิน</span>
+        </button>
         <button onClick={() => setActiveModal('entry')} type="button" className={`nav-center-action ${activeModal === 'entry' ? 'active' : ''}`}>
           <div style={{ background: 'var(--accent)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2px', boxShadow: '0 4px 12px var(--accent-glow)' }}>
             <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: '24px', height: '24px', stroke: '#fff', strokeWidth: '2.5', strokeLinecap: 'round', fill: 'none' }}>
@@ -213,6 +224,14 @@ function App() {
           entries={summaryEntries}
           onClose={() => setActiveModal(null)}
           payroll={summaryPayroll}
+          settings={settings}
+        />
+      )}
+
+      {activeModal === 'calendar' && (
+        <CalendarModal
+          entries={entries}
+          onClose={() => setActiveModal(null)}
           settings={settings}
         />
       )}
