@@ -30,13 +30,25 @@ function App() {
   const [isPrivacyMode, setIsPrivacyMode] = useState(false)
   const [deletingEntryId, setDeletingEntryId] = useState(null)
 
-  const filteredEntries = entries.filter((entry) => {
+  const latestEntryDate = entries.reduce((latest, entry) => {
+    if (!latest || entry.date > latest) return entry.date
+    return latest
+  }, '')
+
+  const visibleEntries = entries.filter((entry) => {
+    if (settings.periodStart && entry.date < settings.periodStart) return false
+    if (latestEntryDate && entry.date > latestEntryDate) return false
+    return true
+  })
+
+  const summaryEntries = entries.filter((entry) => {
     if (settings.periodStart && entry.date < settings.periodStart) return false
     if (settings.periodEnd && entry.date > settings.periodEnd) return false
     return true
   })
 
-  const payroll = calculatePayroll(settings, filteredEntries)
+  const payroll = calculatePayroll(settings, visibleEntries)
+  const summaryPayroll = calculatePayroll(settings, summaryEntries)
 
   /* ── Load from IndexedDB on mount ── */
   useEffect(() => {
@@ -103,7 +115,7 @@ function App() {
         } else {
           alert('ไฟล์ไม่รองรับ หรือข้อมูลไม่ครบถ้วน')
         }
-      } catch (err) {
+      } catch {
         alert('เกิดข้อผิดพลาดในการอ่านไฟล์')
       }
     }
@@ -131,14 +143,14 @@ function App() {
       />
 
       <section className="panel">
-        {filteredEntries.length === 0 ? (
+        {visibleEntries.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">📋</span>
             <p>ยังไม่มีรายการ OT — กดปุ่ม + เพื่อเพิ่ม</p>
           </div>
         ) : (
           <EntryList
-            entries={filteredEntries}
+            entries={visibleEntries}
             hourlyRate={payroll.hourlyRate}
             onRemove={requestRemoveEntry}
           />
@@ -198,9 +210,9 @@ function App() {
 
       {activeModal === 'summary' && (
         <SummaryModal
-          entries={filteredEntries}
+          entries={summaryEntries}
           onClose={() => setActiveModal(null)}
-          payroll={payroll}
+          payroll={summaryPayroll}
           settings={settings}
         />
       )}

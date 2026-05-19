@@ -1,7 +1,7 @@
 import AppModal from './AppModal'
 
 export default function QrCodeModal({ onClose }) {
-  const url = 'https://stellular-kitten-abd5d4.netlify.app/'
+  const url = 'https://work-picker.netlify.app/'
 
   return (
     <AppModal onClose={onClose} title="สแกน QR Code">

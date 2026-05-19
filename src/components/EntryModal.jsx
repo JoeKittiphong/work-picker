@@ -11,7 +11,7 @@ export default function EntryModal({ onClose, onSubmit }) {
   const [form, setForm] = useState({
     date: getTodayKey(),
     type: 'workday',
-    hours: 2,
+    hours: 3,
     note: '',
   })
 
@@ -51,7 +51,9 @@ export default function EntryModal({ onClose, onSubmit }) {
           >
             {Object.entries(otTypes).map(([key, type]) => (
               <option key={key} value={key}>
-                {key === 'holiday'
+                {key === 'morning'
+                  ? `${type.label} 13 ชม.`
+                  : key === 'holiday'
                   ? `${type.label} OT1 8 ชม. + OT3 3 ชม.`
                   : `${type.label} x${type.rate}`}
               </option>
@@ -59,10 +61,14 @@ export default function EntryModal({ onClose, onSubmit }) {
           </select>
         </label>
 
-        {form.type === 'holiday' ? (
+        {form.type === 'holiday' || form.type === 'morning' ? (
           <div className="auto-hours">
-            <span>ชั่วโมงวันหยุด</span>
-            <strong>OT1 8 ชม. + OT3 3 ชม.</strong>
+            <span>
+              {form.type === 'morning' ? 'ชั่วโมง OT morning' : 'ชั่วโมงวันหยุด'}
+            </span>
+            <strong>
+              {form.type === 'morning' ? '13 ชม.' : 'OT1 8 ชม. + OT3 3 ชม.'}
+            </strong>
           </div>
         ) : (
           <label>

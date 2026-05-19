@@ -5,6 +5,7 @@ export const MEAL_ALLOWANCE_PER_OT_DAY = 50
 
 export const otTypes = {
   workday: { label: 'วันทำงาน', rate: 1.5, tone: 'teal' },
+  morning: { label: 'โอที morning', rate: 1.5, tone: 'teal' },
   holiday: { label: 'วันหยุด', tone: 'yellow' },
 }
 
@@ -35,7 +36,7 @@ export function createDefaultEntries() {
       id: 'sample-1',
       date: getTodayKey(),
       type: 'workday',
-      hours: 2,
+      hours: 3,
       note: 'เคลียร์งานท้ายกะ',
     },
   ]
@@ -71,6 +72,10 @@ export function getHourlyRate(settings) {
 }
 
 export function getEntryHours(entry) {
+  if (entry.type === 'morning') {
+    return 13
+  }
+
   if (entry.type === 'holiday') {
     return holidayOtRules.reduce((sum, rule) => sum + rule.hours, 0)
   }
@@ -79,6 +84,10 @@ export function getEntryHours(entry) {
 }
 
 export function getEntryAmount(entry, hourlyRate) {
+  if (entry.type === 'morning') {
+    return 13 * hourlyRate * 1.5
+  }
+
   if (entry.type === 'holiday') {
     return holidayOtRules.reduce(
       (sum, rule) => sum + rule.hours * hourlyRate * rule.rate,
@@ -92,6 +101,10 @@ export function getEntryAmount(entry, hourlyRate) {
 
 export function getEntryTypeLabel(entry) {
   const type = otTypes[entry.type] ?? otTypes.workday
+
+  if (entry.type === 'morning') {
+    return `${type.label} 13 ชม.`
+  }
 
   if (entry.type === 'holiday') {
     return `${type.label} OT1 8 ชม. + OT3 3 ชม.`
@@ -111,6 +124,10 @@ export function calculatePayroll(settings, entries) {
       result.hours += hours
       result.ot += amount
       result.byType[entry.type] = (result.byType[entry.type] ?? 0) + hours
+
+      if (entry.type === 'morning') {
+        return result
+      }
 
       if (entry.type === 'holiday') {
         holidayOtRules.forEach((rule) => {
