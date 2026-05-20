@@ -4,7 +4,6 @@ import {
   createDefaultEntries,
   defaultSettings,
   filterEntriesByDateRange,
-  getLatestEntryDate,
   numberValue,
 } from './payroll'
 import { loadAll, saveSettings, saveEntries, saveAll } from './db'

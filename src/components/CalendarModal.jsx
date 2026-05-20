@@ -44,6 +44,25 @@ function getMonthDays(monthKey) {
   return days
 }
 
+function getCalendarEntryMeta(entry) {
+  const hours = getEntryHours(entry)
+
+  if (entry.type === 'morning') {
+    return { label: 'M', display: 'M:13', hours: 13, tone: 'morning' }
+  }
+
+  if (entry.type === 'holiday') {
+    return { label: 'H', display: 'H', hours, tone: 'holiday' }
+  }
+
+  return {
+    label: 'N',
+    display: `N:${hours.toFixed(1).replace('.0', '')}`,
+    hours,
+    tone: 'workday',
+  }
+}
+
 function CalendarModal({ entries, onClose, settings }) {
   const hourlyRate = getHourlyRate(settings)
 
@@ -86,6 +105,23 @@ function CalendarModal({ entries, onClose, settings }) {
     (sum, entry) => sum + getEntryAmount(entry, hourlyRate),
     0,
   )
+
+  const entriesByDateAndType = monthEntries.reduce((acc, entry) => {
+    if (!acc[entry.date]) {
+      acc[entry.date] = {}
+    }
+
+    const typeMeta = getCalendarEntryMeta(entry)
+    if (!acc[entry.date][typeMeta.label]) {
+      acc[entry.date][typeMeta.label] = {
+        ...typeMeta,
+        hours: 0,
+      }
+    }
+
+    acc[entry.date][typeMeta.label].hours += typeMeta.hours
+    return acc
+  }, {})
 
   const weekdayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
 
@@ -144,6 +180,7 @@ function CalendarModal({ entries, onClose, settings }) {
             }
 
             const dayEntries = entriesByDate[dateKey] ?? []
+            const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
             const isSelected = selectedDate === dateKey
             const hasEntries = dayEntries.length > 0
 
@@ -156,11 +193,12 @@ function CalendarModal({ entries, onClose, settings }) {
               >
                 <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
                 {hasEntries ? (
-                  <div className="calendar-day-meta">
-                    <span>{dayEntries.length} รายการ</span>
-                    <strong>
-                      {dayEntries.reduce((sum, entry) => sum + getEntryHours(entry), 0).toFixed(1)} ชม.
-                    </strong>
+                  <div className="calendar-day-chips">
+                    {dayTypeEntries.map((item) => (
+                      <span className={`calendar-chip ${item.tone}`} key={`${dateKey}-${item.label}`}>
+                        {item.display}
+                      </span>
+                    ))}
                   </div>
                 ) : (
                   <span className="calendar-day-empty-text">-</span>
