@@ -137,16 +137,19 @@
   white-space: nowrap;
 }
 
+.calendar-chip.green,
 .calendar-chip.workday {
   background: rgba(34, 197, 94, 0.14);
   color: #86efac;
 }
 
+.calendar-chip.yellow,
 .calendar-chip.morning {
   background: rgba(234, 179, 8, 0.14);
   color: #fde68a;
 }
 
+.calendar-chip.red,
 .calendar-chip.holiday {
   background: rgba(239, 68, 68, 0.14);
   color: #fca5a5;

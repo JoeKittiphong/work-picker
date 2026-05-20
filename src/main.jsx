@@ -11,14 +11,26 @@ createRoot(document.getElementById('root')).render(
 
 /* ── Register Service Worker ── */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((reg) => {
-        console.log('[SW] Registered:', reg.scope)
+  if (import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((reg) => {
+          console.log('[SW] Registered:', reg.scope)
+        })
+        .catch((err) => {
+          console.warn('[SW] Registration failed:', err)
+        })
+    })
+  } else {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => registration.unregister())
+    })
+
+    if ('caches' in window) {
+      caches.keys().then((keys) => {
+        keys.forEach((key) => caches.delete(key))
       })
-      .catch((err) => {
-        console.warn('[SW] Registration failed:', err)
-      })
-  })
+    }
+  }
 }

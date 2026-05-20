@@ -46,20 +46,21 @@ function getMonthDays(monthKey) {
 
 function getCalendarEntryMeta(entry) {
   const hours = getEntryHours(entry)
+  const type = otTypes[entry.type] ?? otTypes.workday
 
   if (entry.type === 'morning') {
-    return { label: 'M', display: 'M:13', hours: 13, tone: 'morning' }
+    return { label: 'M', display: 'M:13', hours: 13, tone: 'yellow' }
   }
 
   if (entry.type === 'holiday') {
-    return { label: 'H', display: 'H', hours, tone: 'holiday' }
+    return { label: 'H', display: 'H', hours, tone: 'red' }
   }
 
   return {
     label: 'N',
     display: `N:${hours.toFixed(1).replace('.0', '')}`,
     hours,
-    tone: 'workday',
+    tone: type.tone ?? 'green',
   }
 }
 

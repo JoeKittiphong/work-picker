@@ -14,6 +14,7 @@ import './styles/forms.css'
 import './styles/cards.css'
 import './styles/summary.css'
 import './styles/calendar.css'
+import './styles/plan.css'
 import './App.css'
 
 /* ── Components ── */
@@ -22,6 +23,7 @@ import EntryList from './components/EntryList'
 import EntryModal from './components/EntryModal'
 import SummaryModal from './components/SummaryModal'
 import CalendarModal from './components/CalendarModal'
+import PlanModal from './components/PlanModal'
 import SettingsModal from './components/SettingsModal'
 import QrCodeModal from './components/QrCodeModal'
 
@@ -192,6 +194,14 @@ function App() {
           </div>
           <span className="nav-label" style={{ fontSize: '10px' }}>เพิ่ม OT</span>
         </button>
+        <button onClick={() => setActiveModal('plan')} type="button" className={activeModal === 'plan' ? 'active' : ''}>
+          <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16v14H4z" />
+            <path d="M8 3v4M16 3v4" />
+            <path d="M7 11h10M7 15h6" />
+          </svg>
+          <span className="nav-label">แผน</span>
+        </button>
         <button onClick={() => setActiveModal('settings')} type="button" className={activeModal === 'settings' ? 'active' : ''}>
           <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
@@ -226,6 +236,13 @@ function App() {
       {activeModal === 'calendar' && (
         <CalendarModal
           entries={entries}
+          onClose={() => setActiveModal(null)}
+          settings={settings}
+        />
+      )}
+
+      {activeModal === 'plan' && (
+        <PlanModal
           onClose={() => setActiveModal(null)}
           settings={settings}
         />

@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { formatMoney } from '../payroll'
+import { formatMoney, getBaseSalary } from '../payroll'
 import AppModal from './AppModal'
 import NumberField from './NumberField'
 import DateField from './DateField'
@@ -47,6 +47,15 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
             label="เบี้ยขยัน"
             value={settings.diligence}
             onChange={(value) => onUpdate('diligence', value)}
+          />
+        </div>
+
+        <div style={{ display: 'grid', gap: '8px', marginTop: '8px' }}>
+          <NumberField
+            label="ค่าตำแหน่ง"
+            value={settings.position}
+            onChange={(value) => onUpdate('position', value)}
+            helper={`รวมเป็นฐาน OT ${formatMoney(getBaseSalary(settings))}`}
           />
         </div>
 

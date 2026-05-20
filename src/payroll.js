@@ -2,12 +2,18 @@ export const STORAGE_KEY = 'work-picker-payroll-v1'
 export const STANDARD_PAY_DAYS = 30
 export const STANDARD_WORK_HOURS = 8
 export const MEAL_ALLOWANCE_PER_OT_DAY = 50
+export const MORNING_MEAL_ALLOWANCE = 120
 
 export const otTypes = {
-  workday: { label: 'วันทำงาน', rate: 1.5, tone: 'teal' },
-  morning: { label: 'โอที morning', rate: 1.5, tone: 'teal' },
-  holiday: { label: 'วันหยุด', tone: 'yellow' },
+  workday: { label: 'วันทำงาน', rate: 1.5, tone: 'green' },
+  ot2015: { label: '20.15', rate: 1.5, hours: 3, tone: 'green' },
+  ot2215: { label: '22.15', rate: 1.5, hours: 5, tone: 'green' },
+  ot0015: { label: '00.15', rate: 1.5, hours: 7, tone: 'green' },
+  morning: { label: 'morning', rate: 1.5, hours: 13, tone: 'yellow' },
+  holiday: { label: 'วันหยุด', tone: 'red' },
 }
+
+export const selectableOtKeys = ['ot2015', 'ot2215', 'ot0015', 'morning', 'holiday']
 
 export const holidayOtRules = [
   { label: 'OT1', rate: 1, hours: 8 },
@@ -15,13 +21,14 @@ export const holidayOtRules = [
 ]
 
 export const defaultSettings = {
-  salary: 10000,
-  welfare: 5000,
-  diligence: 800,
+  salary: 12000,
+  welfare: 4000,
+  diligence: 1000,
+  position: 0,
   otherIncome: 0,
   deductions: 0,
   socialSecurityPercent: 5,
-  providentFundPercent: 3,
+  providentFundPercent: 0,
   periodStart: '',
   periodEnd: '',
 }
@@ -81,30 +88,36 @@ export function filterEntriesByDateRange(entries, startDate, endDate) {
   return entries.filter((entry) => isEntryWithinRange(entry, startDate, endDate))
 }
 
+export function getMealAllowanceForEntry(entry) {
+  if (entry.type === 'morning') {
+    return MORNING_MEAL_ALLOWANCE
+  }
+
+  return MEAL_ALLOWANCE_PER_OT_DAY
+}
+
 export function getHourlyRate(settings) {
-  return (
-    numberValue(settings.salary) /
-    (STANDARD_PAY_DAYS * STANDARD_WORK_HOURS)
-  )
+  return getBaseSalary(settings) / (STANDARD_PAY_DAYS * STANDARD_WORK_HOURS)
+}
+
+export function getBaseSalary(settings) {
+  return numberValue(settings.salary) + numberValue(settings.position)
 }
 
 export function getEntryHours(entry) {
-  if (entry.type === 'morning') {
-    return 13
-  }
-
   if (entry.type === 'holiday') {
     return holidayOtRules.reduce((sum, rule) => sum + rule.hours, 0)
+  }
+
+  const type = otTypes[entry.type] ?? otTypes.workday
+  if (typeof type.hours === 'number') {
+    return type.hours
   }
 
   return numberValue(entry.hours)
 }
 
 export function getEntryAmount(entry, hourlyRate) {
-  if (entry.type === 'morning') {
-    return 13 * hourlyRate * 1.5
-  }
-
   if (entry.type === 'holiday') {
     return holidayOtRules.reduce(
       (sum, rule) => sum + rule.hours * hourlyRate * rule.rate,
@@ -113,18 +126,19 @@ export function getEntryAmount(entry, hourlyRate) {
   }
 
   const type = otTypes[entry.type] ?? otTypes.workday
-  return numberValue(entry.hours) * hourlyRate * type.rate
+  const hours = typeof type.hours === 'number' ? type.hours : numberValue(entry.hours)
+  return hours * hourlyRate * (type.rate ?? 1.5)
 }
 
 export function getEntryTypeLabel(entry) {
   const type = otTypes[entry.type] ?? otTypes.workday
 
-  if (entry.type === 'morning') {
-    return `${type.label} 13 ชม.`
-  }
-
   if (entry.type === 'holiday') {
     return `${type.label} OT1 8 ชม. + OT3 3 ชม.`
+  }
+
+  if (typeof type.hours === 'number' && type.rate) {
+    return `${type.label} - ${type.rate}x${type.hours}`
   }
 
   return `${type.label} x${type.rate}`
@@ -132,7 +146,7 @@ export function getEntryTypeLabel(entry) {
 
 export function calculatePayroll(settings, entries) {
   const hourlyRate = getHourlyRate(settings)
-  const baseSalary = numberValue(settings.salary)
+  const baseSalary = getBaseSalary(settings)
   const totals = entries.reduce(
     (result, entry) => {
       const hours = getEntryHours(entry)
@@ -166,7 +180,10 @@ export function calculatePayroll(settings, entries) {
     socialSecurityDeduction +
     providentFundDeduction +
     numberValue(settings.deductions)
-  const mealAllowance = entries.length * MEAL_ALLOWANCE_PER_OT_DAY
+  const mealAllowance = entries.reduce(
+    (sum, entry) => sum + getMealAllowanceForEntry(entry),
+    0,
+  )
   const expectedPay =
     baseSalary +
     totals.ot +

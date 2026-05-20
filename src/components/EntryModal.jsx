@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import {
   formatDateWithWeekday,
+  getEntryHours,
   getTodayKey,
   numberValue,
+  selectableOtKeys,
   otTypes,
 } from '../payroll'
 import AppModal from './AppModal'
@@ -10,10 +12,13 @@ import AppModal from './AppModal'
 export default function EntryModal({ onClose, onSubmit }) {
   const [form, setForm] = useState({
     date: getTodayKey(),
-    type: 'workday',
+    type: selectableOtKeys[0],
     hours: 3,
     note: '',
   })
+
+  const selectedType = otTypes[form.type] ?? otTypes.workday
+  const hasFixedHours = typeof selectedType.hours === 'number' || form.type === 'holiday'
 
   function submitEntry(event) {
     event.preventDefault()
@@ -22,7 +27,9 @@ export default function EntryModal({ onClose, onSubmit }) {
       id: crypto.randomUUID(),
       date: form.date,
       type: form.type,
-      hours: Math.max(numberValue(form.hours), 0),
+      hours: hasFixedHours
+        ? getEntryHours({ type: form.type, hours: form.hours })
+        : Math.max(numberValue(form.hours), 0),
       note: form.note.trim(),
     })
   }
@@ -49,25 +56,26 @@ export default function EntryModal({ onClose, onSubmit }) {
             value={form.type}
             onChange={(event) => setForm({ ...form, type: event.target.value })}
           >
-            {Object.entries(otTypes).map(([key, type]) => (
-              <option key={key} value={key}>
-                {key === 'morning'
-                  ? `${type.label} 13 ชม.`
-                  : key === 'holiday'
-                  ? `${type.label} OT1 8 ชม. + OT3 3 ชม.`
-                  : `${type.label} x${type.rate}`}
-              </option>
-            ))}
+            {selectableOtKeys.map((key) => {
+              const type = otTypes[key]
+              return (
+                <option key={key} value={key}>
+                  {key === 'holiday'
+                    ? `${type.label} OT1 8 ชม. + OT3 3 ชม.`
+                    : `${type.label} - ${type.rate}x${type.hours}`}
+                </option>
+              )
+            })}
           </select>
         </label>
 
-        {form.type === 'holiday' || form.type === 'morning' ? (
+        {hasFixedHours ? (
           <div className="auto-hours">
-            <span>
-              {form.type === 'morning' ? 'ชั่วโมง OT morning' : 'ชั่วโมงวันหยุด'}
-            </span>
+            <span>{form.type === 'holiday' ? 'ชั่วโมงวันหยุด' : 'ชั่วโมง OT'}</span>
             <strong>
-              {form.type === 'morning' ? '13 ชม.' : 'OT1 8 ชม. + OT3 3 ชม.'}
+              {form.type === 'holiday'
+                ? 'OT1 8 ชม. + OT3 3 ชม.'
+                : `${selectedType.hours} ชม. / วัน`}
             </strong>
           </div>
         ) : (
@@ -75,9 +83,7 @@ export default function EntryModal({ onClose, onSubmit }) {
             จำนวนชั่วโมง
             <input
               value={form.hours}
-              onChange={(event) =>
-                setForm({ ...form, hours: event.target.value })
-              }
+              onChange={(event) => setForm({ ...form, hours: event.target.value })}
               inputMode="decimal"
               min="0"
               step="0.5"

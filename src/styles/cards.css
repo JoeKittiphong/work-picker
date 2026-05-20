@@ -69,6 +69,7 @@
   padding: 3px 9px;
 }
 
+.type-pill.green,
 .type-pill.teal {
   background: var(--pill-teal-bg);
   color: var(--pill-teal-text);

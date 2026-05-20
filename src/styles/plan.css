@@ -1,0 +1,163 @@
+.plan-shell {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.plan-intro {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.plan-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 14px;
+}
+
+.plan-summary span {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.plan-summary strong {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.plan-rate-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.plan-rate-summary > div {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.plan-rate-summary span {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.plan-rate-summary strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.plan-list {
+  display: grid;
+  gap: 10px;
+}
+
+.plan-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.plan-card-top {
+  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 2fr);
+  gap: 12px;
+}
+
+.plan-type-cell {
+  min-width: 0;
+}
+
+.plan-hours-cell {
+  display: grid;
+  gap: 6px;
+  min-width: 90px;
+}
+
+.plan-hours-cell span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.plan-hours-cell strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.plan-card-top p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0 0;
+  line-height: 1.45;
+}
+
+.plan-days-field {
+  display: grid;
+  gap: 6px;
+  min-width: 96px;
+  text-transform: uppercase;
+}
+
+.plan-days-field span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.plan-days-field input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  min-height: 42px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+@media (max-width: 420px) {
+  .plan-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-rate-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card-top {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-hours-cell {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .plan-days-field {
+    min-width: 0;
+    width: 100%;
+  }
+}

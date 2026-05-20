@@ -1,18 +1,28 @@
 import { memo } from 'react'
-import { formatMoney, numberValue, otTypes } from '../payroll'
+import { formatMoney, numberValue, selectableOtKeys, otTypes } from '../payroll'
 import AppModal from './AppModal'
 
 function SummaryModal({ entries, onClose, payroll, settings }) {
+  const visibleTypeKeys = [
+    ...selectableOtKeys,
+    ...(payroll.totals.byType.workday > 0 ? ['workday'] : []),
+  ]
+
   return (
     <AppModal onClose={onClose} title="สรุป">
       <div className="breakdown">
         <h2>รายละเอียดรอบเงินเดือน</h2>
-        {Object.entries(otTypes).map(([key, type]) => (
-          <div className="breakdown-row" key={key}>
-            <span>{type.label}</span>
-            <strong>{(payroll.totals.byType[key] ?? 0).toFixed(1)} ชม.</strong>
-          </div>
-        ))}
+        {visibleTypeKeys.map((key) => {
+          const type = otTypes[key]
+          if (!type) return null
+
+          return (
+            <div className="breakdown-row" key={key}>
+              <span>{type.label}</span>
+              <strong>{(payroll.totals.byType[key] ?? 0).toFixed(1)} ชม.</strong>
+            </div>
+          )
+        })}
         <div className="breakdown-row sub-row">
           <span>วันหยุด OT1</span>
           <strong>
@@ -34,9 +44,7 @@ function SummaryModal({ entries, onClose, payroll, settings }) {
           <strong>-{formatMoney(payroll.socialSecurityDeduction)}</strong>
         </div>
         <div className="breakdown-row">
-          <span>
-            กองทุนสำรองเลี้ยงชีพ {numberValue(settings.providentFundPercent)}%
-          </span>
+          <span>กองทุนสำรองเลี้ยงชีพ {numberValue(settings.providentFundPercent)}%</span>
           <strong>-{formatMoney(payroll.providentFundDeduction)}</strong>
         </div>
         <div className="breakdown-row">
