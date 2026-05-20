@@ -34,25 +34,14 @@ function App() {
   const [isPrivacyMode, setIsPrivacyMode] = useState(false)
   const [deletingEntryId, setDeletingEntryId] = useState(null)
 
-  const latestEntryDate = useMemo(() => getLatestEntryDate(entries), [entries])
-
-  const visibleEntries = useMemo(
-    () => filterEntriesByDateRange(entries, settings.periodStart, latestEntryDate),
-    [entries, latestEntryDate, settings.periodStart],
-  )
-
-  const summaryEntries = useMemo(
+  const periodEntries = useMemo(
     () => filterEntriesByDateRange(entries, settings.periodStart, settings.periodEnd),
     [entries, settings.periodEnd, settings.periodStart],
   )
 
   const payroll = useMemo(
-    () => calculatePayroll(settings, visibleEntries),
-    [settings, visibleEntries],
-  )
-  const summaryPayroll = useMemo(
-    () => calculatePayroll(settings, summaryEntries),
-    [settings, summaryEntries],
+    () => calculatePayroll(settings, periodEntries),
+    [settings, periodEntries],
   )
 
   /* ── Load from IndexedDB on mount ── */
@@ -152,14 +141,14 @@ function App() {
       />
 
       <section className="panel">
-        {visibleEntries.length === 0 ? (
+        {entries.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">📋</span>
             <p>ยังไม่มีรายการ OT — กดปุ่ม + เพื่อเพิ่ม</p>
           </div>
         ) : (
           <EntryList
-            entries={visibleEntries}
+            entries={entries}
             hourlyRate={payroll.hourlyRate}
             onRemove={requestRemoveEntry}
           />
@@ -228,9 +217,9 @@ function App() {
 
       {activeModal === 'summary' && (
         <SummaryModal
-          entries={summaryEntries}
+          entries={periodEntries}
           onClose={() => setActiveModal(null)}
-          payroll={summaryPayroll}
+          payroll={payroll}
           settings={settings}
         />
       )}
