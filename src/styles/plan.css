@@ -139,16 +139,9 @@
 }
 
 @media (max-width: 420px) {
-  .plan-summary {
-    grid-template-columns: 1fr;
-  }
-
+  .plan-summary,
   .plan-rate-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .plan-card-top {
-    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .plan-hours-cell {
@@ -159,5 +152,25 @@
   .plan-days-field {
     min-width: 0;
     width: 100%;
+  }
+
+  .plan-summary,
+  .plan-rate-summary,
+  .plan-card,
+  .plan-days-field input {
+    border-radius: 12px;
+  }
+
+  .plan-summary span,
+  .plan-rate-summary span,
+  .plan-days-field span,
+  .plan-card-top p {
+    font-size: 10px;
+  }
+
+  .plan-summary strong,
+  .plan-rate-summary strong,
+  .plan-hours-cell strong {
+    font-size: 14px;
   }
 }

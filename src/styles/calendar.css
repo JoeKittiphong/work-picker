@@ -257,8 +257,44 @@
     min-height: 60px;
     padding: 7px 6px;
   }
+}
 
-  .calendar-summary {
-    grid-template-columns: 1fr;
+@media (max-width: 380px) {
+  .calendar-toolbar strong {
+    font-size: 14px;
+  }
+
+  .calendar-nav,
+  .calendar-month-list button {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .calendar-grid {
+    gap: 5px;
+  }
+
+  .calendar-day {
+    min-height: 56px;
+    padding: 6px 5px;
+  }
+
+  .calendar-day-number {
+    font-size: 11px;
+  }
+
+  .calendar-chip {
+    font-size: 9px;
+    padding: 3px 5px;
+  }
+
+  .calendar-summary,
+  .calendar-detail {
+    padding: 12px;
+  }
+
+  .calendar-summary strong {
+    font-size: 16px;
   }
 }

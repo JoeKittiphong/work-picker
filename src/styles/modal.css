@@ -132,3 +132,30 @@
     display: none;
   }
 }
+
+@media (max-width: 639px) {
+  .modal-backdrop {
+    padding: 0 6px;
+  }
+
+  .app-modal {
+    max-height: 96svh;
+    padding: 0 12px 18px;
+  }
+
+  .app-modal::before {
+    margin: 10px auto 12px;
+  }
+
+  .modal-header {
+    margin-bottom: 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  .modal-header p {
+    font-size: 12px;
+  }
+}

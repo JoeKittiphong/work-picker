@@ -172,13 +172,21 @@
 }
 
 @media (max-width: 420px) {
-  .entry-card-topline {
-    align-items: flex-start;
-    flex-direction: column;
+  .entry-card {
+    gap: 10px;
+    padding: 12px 14px;
   }
 
-  .entry-range-badge {
-    align-self: flex-start;
+  .entry-card-topline {
+    gap: 6px;
+  }
+
+  .entry-card h2 {
+    font-size: 14px;
+  }
+
+  .entry-money strong {
+    font-size: 15px;
   }
 }
 

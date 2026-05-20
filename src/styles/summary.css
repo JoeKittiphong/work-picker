@@ -73,3 +73,26 @@
   color: var(--muted);
   font-size: 12px;
 }
+
+@media (max-width: 380px) {
+  .breakdown {
+    padding: 12px;
+  }
+
+  .breakdown h2 {
+    font-size: 14px;
+  }
+
+  .breakdown-row {
+    padding: 10px 0;
+  }
+
+  .breakdown-row span,
+  .breakdown-row strong {
+    font-size: 12px;
+  }
+
+  .breakdown-row.total strong {
+    font-size: 16px;
+  }
+}

@@ -185,6 +185,90 @@ label,
   gap: 16px;
 }
 
+.settings-section-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 4px 12px;
+}
+
+.settings-date-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.settings-pay-row {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 4px 12px;
+}
+
+.settings-rate-note {
+  align-items: baseline;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.settings-rate-note strong {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.settings-income-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.settings-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 8px;
+}
+
+.settings-position-row {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.settings-backup-title {
+  padding-top: 24px;
+}
+
+.settings-backup-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.settings-backup-button,
+.settings-backup-import {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px;
+  text-align: center;
+}
+
+.settings-backup-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.settings-backup-import {
+  background: rgba(34, 211, 238, 0.1);
+  border-color: rgba(34, 211, 238, 0.3);
+  color: #22d3ee;
+}
+
 .rate-note {
   align-items: center;
   /* Frosted glass */
@@ -221,5 +305,91 @@ label,
   .entry-form label:last-of-type,
   .entry-form .primary-button {
     grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 380px) {
+  .entry-form {
+    gap: 12px;
+  }
+
+  label,
+  .number-field {
+    font-size: 11px;
+  }
+
+  input,
+  select {
+    min-height: 44px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .number-label {
+    gap: 6px;
+  }
+
+  .field-help {
+    font-size: 10px;
+  }
+
+  .auto-hours {
+    padding: 9px 12px;
+  }
+
+  .rate-note {
+    padding: 12px 14px;
+  }
+
+  .settings-list {
+    gap: 12px;
+  }
+
+  .settings-section-title {
+    font-size: 12px;
+    padding: 0 2px 8px;
+  }
+
+  .settings-date-grid,
+  .settings-grid-3,
+  .settings-grid-2 {
+    gap: 6px;
+  }
+
+  .settings-pay-row {
+    align-items: flex-start;
+    padding: 10px 2px 8px;
+  }
+
+  .settings-rate-note {
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .settings-rate-note strong {
+    font-size: 14px;
+  }
+
+  .settings-backup-title {
+    padding-top: 16px;
+  }
+
+  .settings-backup-actions {
+    gap: 8px;
+  }
+
+  .settings-backup-button,
+  .settings-backup-import {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .settings-position-row {
+    margin-top: 6px;
+  }
+
+  .settings-grid-3 .number-field,
+  .settings-grid-2 .number-field {
+    min-width: 0;
   }
 }

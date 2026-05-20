@@ -7,13 +7,13 @@ import DateField from './DateField'
 function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, settings }) {
   return (
     <AppModal
-      dateHint="เปอร์เซ็นต์หักจะคิดจากเงินเดือนฐาน"
+      dateHint="เปอร์เซ็นต์จะคิดจากเงินเดือนฐาน"
       onClose={onClose}
       title="ตั้งค่าเงินเดือน"
     >
       <div className="settings-list">
-        <div style={{ padding: '0 4px 12px 4px', fontSize: '14px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.8)' }}>รอบระยะเวลาคำนวณ (ไม่ใส่คือทั้งหมด)</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="settings-section-title">รอบระยะเวลาคำนวณ (ไม่ใช่ทั้งหมด)</div>
+        <div className="settings-date-grid">
           <DateField
             label="ตั้งแต่วันที่"
             value={settings.periodStart || ''}
@@ -25,14 +25,16 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
             onChange={(value) => onUpdate('periodEnd', value)}
           />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '16px 4px 12px 4px' }}>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.8)' }}>รายได้และรายการหัก</div>
-          <div style={{ fontSize: '12px', color: 'var(--muted)', display: 'flex', gap: '8px', alignItems: 'baseline' }}>
+
+        <div className="settings-pay-row">
+          <div className="settings-section-title">รายได้และรายการหัก</div>
+          <div className="settings-rate-note">
             <span>ค่าแรงต่อชั่วโมง</span>
-            <strong style={{ color: 'var(--accent)', fontSize: '16px' }}>{formatMoney(payroll.hourlyRate)}</strong>
+            <strong>{formatMoney(payroll.hourlyRate)}</strong>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+
+        <div className="settings-income-grid settings-grid-3">
           <NumberField
             label="เงินเดือนฐาน"
             value={settings.salary}
@@ -50,7 +52,7 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
           />
         </div>
 
-        <div style={{ display: 'grid', gap: '8px', marginTop: '8px' }}>
+        <div className="settings-position-row">
           <NumberField
             label="ค่าตำแหน่ง"
             value={settings.position}
@@ -59,7 +61,7 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '8px' }}>
+        <div className="settings-two-col settings-grid-2">
           <NumberField
             label="ประกันสังคม (%)"
             value={settings.socialSecurityPercent}
@@ -76,7 +78,7 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '8px' }}>
+        <div className="settings-two-col settings-grid-2">
           <NumberField
             label="รายรับอื่น ๆ"
             value={settings.otherIncome}
@@ -88,19 +90,17 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
             onChange={(value) => onUpdate('deductions', value)}
           />
         </div>
-        
-        <div style={{ padding: '24px 4px 12px 4px', fontSize: '14px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.8)' }}>สำรองข้อมูล (Backup)</div>
-        <div style={{ display: 'grid', gap: '12px' }}>
-          <button 
-            type="button" 
+
+        <div className="settings-section-title settings-backup-title">สำรองข้อมูล (Backup)</div>
+        <div className="settings-backup-actions">
+          <button
+            type="button"
             onClick={onExport}
-            style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            className="settings-backup-button"
           >
             📥 Backup
           </button>
-          <label 
-            style={{ padding: '12px', background: 'rgba(34, 211, 238, 0.1)', color: '#22d3ee', border: '1px solid rgba(34, 211, 238, 0.3)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', textAlign: 'center' }}
-          >
+          <label className="settings-backup-import">
             📤 Import Backup
             <input type="file" accept=".json" onChange={onImport} style={{ display: 'none' }} />
           </label>
