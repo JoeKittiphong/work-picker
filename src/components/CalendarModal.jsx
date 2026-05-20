@@ -46,7 +46,6 @@ function getMonthDays(monthKey) {
 
 function getCalendarEntryMeta(entry) {
   const hours = getEntryHours(entry)
-  const type = otTypes[entry.type] ?? otTypes.workday
 
   if (entry.type === 'morning') {
     return { label: 'M', display: 'M:13', hours: 13, tone: 'yellow' }
@@ -60,8 +59,20 @@ function getCalendarEntryMeta(entry) {
     label: 'N',
     display: `N:${hours.toFixed(1).replace('.0', '')}`,
     hours,
-    tone: type.tone ?? 'green',
+    tone: 'neutral',
   }
+}
+
+function getDayTone(dayTypeEntries) {
+  if (dayTypeEntries.some((item) => item.label === 'H')) {
+    return 'holiday'
+  }
+
+  if (dayTypeEntries.some((item) => item.label === 'M')) {
+    return 'morning'
+  }
+
+  return 'neutral'
 }
 
 function CalendarModal({ entries, onClose, settings }) {
@@ -184,12 +195,13 @@ function CalendarModal({ entries, onClose, settings }) {
             const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
             const isSelected = selectedDate === dateKey
             const hasEntries = dayEntries.length > 0
+            const dayTone = hasEntries ? getDayTone(dayTypeEntries) : 'neutral'
 
             return (
               <button
                 key={dateKey}
                 type="button"
-                className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''}`}
+                className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''}`}
                 onClick={() => setRequestedSelectedDate(dateKey)}
               >
                 <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>

@@ -5,6 +5,7 @@ import {
   defaultSettings,
   filterEntriesByDateRange,
   numberValue,
+  sortEntriesByDateDesc,
 } from './payroll'
 import { loadAll, saveSettings, saveEntries, saveAll } from './db'
 
@@ -34,11 +35,17 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [isPrivacyMode, setIsPrivacyMode] = useState(false)
   const [deletingEntryId, setDeletingEntryId] = useState(null)
+  const [toast, setToast] = useState(null)
 
   const periodEntries = useMemo(
-    () => filterEntriesByDateRange(entries, settings.periodStart, settings.periodEnd),
+    () =>
+      sortEntriesByDateDesc(
+        filterEntriesByDateRange(entries, settings.periodStart, settings.periodEnd),
+      ),
     [entries, settings.periodEnd, settings.periodStart],
   )
+
+  const orderedEntries = useMemo(() => sortEntriesByDateDesc(entries), [entries])
 
   const payroll = useMemo(
     () => calculatePayroll(settings, periodEntries),
@@ -54,6 +61,17 @@ function App() {
     })
   }, [])
 
+  useEffect(() => {
+    if (!toast) return undefined
+
+    const timeoutId = window.setTimeout(() => setToast(null), 2200)
+    return () => window.clearTimeout(timeoutId)
+  }, [toast])
+
+  const showToast = useCallback((message) => {
+    setToast(message)
+  }, [])
+
   const updateSettings = useCallback((key, value) => {
     let finalValue = value
     if (key !== 'periodStart' && key !== 'periodEnd') {
@@ -65,13 +83,19 @@ function App() {
   }, [settings])
 
   const addEntry = useCallback((entry) => {
+    const duplicateEntry = entries.some((existingEntry) => existingEntry.date === entry.date)
+    if (duplicateEntry) {
+      showToast('วันที่นี้มีรายการอยู่แล้ว')
+      return
+    }
+
     setEntries((prev) => {
       const nextEntries = [entry, ...prev]
       saveEntries(nextEntries)
       return nextEntries
     })
     setActiveModal(null)
-  }, [])
+  }, [entries, showToast])
 
   const requestRemoveEntry = useCallback((id) => {
     setDeletingEntryId(id)
@@ -149,8 +173,10 @@ function App() {
           </div>
         ) : (
           <EntryList
-            entries={entries}
+            entries={orderedEntries}
             hourlyRate={payroll.hourlyRate}
+            periodEnd={settings.periodEnd}
+            periodStart={settings.periodStart}
             onRemove={requestRemoveEntry}
           />
         )}
@@ -294,6 +320,12 @@ function App() {
               </button>
             </div>
           </section>
+        </div>
+      )}
+
+      {toast && (
+        <div className="app-toast" role="status" aria-live="polite">
+          {toast}
         </div>
       )}
     </main>

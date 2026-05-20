@@ -247,3 +247,22 @@
   border-radius: 50%;
   animation: spin-slow 1s linear infinite;
 }
+
+.app-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 70;
+  max-width: calc(100vw - 28px);
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(8, 15, 28, 0.96);
+  color: #fecaca;
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: fade-in-up var(--duration-normal) var(--ease-out) both;
+}

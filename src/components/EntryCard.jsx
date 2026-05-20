@@ -8,20 +8,25 @@ import {
   otTypes,
 } from '../payroll'
 
-function EntryCard({ entry, hourlyRate, onRemove, staggerIndex = 0 }) {
+function EntryCard({ entry, hourlyRate, isWithinRange, onRemove, staggerIndex = 0 }) {
   const type = otTypes[entry.type] ?? otTypes.workday
   const amount = getEntryAmount(entry, hourlyRate)
   const hours = getEntryHours(entry)
 
   return (
     <article
-      className="entry-card"
+      className={`entry-card ${isWithinRange ? 'within-range' : 'out-of-range'}`}
       style={{ '--stagger-i': staggerIndex }}
     >
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <h2 style={{ fontSize: '15px', fontWeight: 'bold', margin: 0, color: '#fff', whiteSpace: 'nowrap' }}>
-          {formatDateWithWeekday(entry.date)}
-        </h2>
+        <div className="entry-card-topline">
+          <h2 style={{ fontSize: '15px', fontWeight: 'bold', margin: 0, color: '#fff', whiteSpace: 'nowrap' }}>
+            {formatDateWithWeekday(entry.date)}
+          </h2>
+          {isWithinRange && (
+            <span className="entry-range-badge within-range">วีคปัจจุบัน</span>
+          )}
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span className={`type-pill ${type.tone}`}>
             {getEntryTypeLabel(entry)}

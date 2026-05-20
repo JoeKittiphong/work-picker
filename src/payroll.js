@@ -88,6 +88,16 @@ export function filterEntriesByDateRange(entries, startDate, endDate) {
   return entries.filter((entry) => isEntryWithinRange(entry, startDate, endDate))
 }
 
+export function sortEntriesByDateDesc(entries) {
+  return [...entries].sort((left, right) => {
+    if (left.date !== right.date) {
+      return right.date.localeCompare(left.date)
+    }
+
+    return right.id.localeCompare(left.id)
+  })
+}
+
 export function getMealAllowanceForEntry(entry) {
   if (entry.type === 'morning') {
     return MORNING_MEAL_ALLOWANCE
