@@ -18,6 +18,8 @@
   display: flex;
   gap: 12px;
   justify-content: space-between;
+  min-width: 0;
+  width: 100%;
   /* Comfortable mobile padding */
   padding: 14px 16px;
   text-align: left;
@@ -73,6 +75,7 @@
   display: flex;
   gap: 8px;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .entry-range-badge {
@@ -173,16 +176,33 @@
 
 @media (max-width: 420px) {
   .entry-card {
-    gap: 10px;
-    padding: 12px 14px;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .entry-card-topline {
     gap: 6px;
   }
 
+  .entry-card > div:first-child {
+    min-width: 0;
+  }
+
+  .entry-card p {
+    min-width: 0;
+  }
+
+  .entry-money {
+    min-width: 76px;
+  }
+
   .entry-card h2 {
     font-size: 14px;
+  }
+
+  .entry-money button {
+    padding-left: 6px;
+    padding-right: 6px;
   }
 
   .entry-money strong {
