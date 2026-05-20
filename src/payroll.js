@@ -140,6 +140,21 @@ export function getEntryAmount(entry, hourlyRate) {
   return hours * hourlyRate * (type.rate ?? 1.5)
 }
 
+export function getEntryRateBreakdown(entry) {
+  if (entry.type === 'holiday') {
+    return holidayOtRules.reduce((acc, rule) => {
+      const key = String(rule.rate)
+      acc[key] = (acc[key] ?? 0) + rule.hours
+      return acc
+    }, {})
+  }
+
+  const type = otTypes[entry.type] ?? otTypes.workday
+  const rate = type.rate ?? 1.5
+  const hours = getEntryHours(entry)
+  return { [String(rate)]: hours }
+}
+
 export function getEntryTypeLabel(entry) {
   const type = otTypes[entry.type] ?? otTypes.workday
 

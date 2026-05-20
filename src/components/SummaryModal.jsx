@@ -1,39 +1,38 @@
 import { memo } from 'react'
-import { formatMoney, numberValue, selectableOtKeys, otTypes } from '../payroll'
+import {
+  formatMoney,
+  getEntryRateBreakdown,
+  numberValue,
+} from '../payroll'
 import AppModal from './AppModal'
 
 function SummaryModal({ entries, onClose, payroll, settings }) {
-  const visibleTypeKeys = [
-    ...selectableOtKeys,
-    ...(payroll.totals.byType.workday > 0 ? ['workday'] : []),
-  ]
+  const rateTotals = entries.reduce(
+    (acc, entry) => {
+      const breakdown = getEntryRateBreakdown(entry)
+      Object.entries(breakdown).forEach(([rate, hours]) => {
+        acc[rate] = (acc[rate] ?? 0) + hours
+      })
+      return acc
+    },
+    { '1.5': 0, '2': 0, '3': 0 },
+  )
 
   return (
     <AppModal onClose={onClose} title="สรุป">
       <div className="breakdown">
         <h2>รายละเอียดรอบเงินเดือน</h2>
-        {visibleTypeKeys.map((key) => {
-          const type = otTypes[key]
-          if (!type) return null
-
-          return (
-            <div className="breakdown-row" key={key}>
-              <span>{type.label}</span>
-              <strong>{(payroll.totals.byType[key] ?? 0).toFixed(1)} ชม.</strong>
-            </div>
-          )
-        })}
-        <div className="breakdown-row sub-row">
-          <span>วันหยุด OT1</span>
-          <strong>
-            {(payroll.totals.holidayBreakdown.OT1 ?? 0).toFixed(1)} ชม.
-          </strong>
+        <div className="breakdown-row">
+          <span>OT 1.5</span>
+          <strong>{rateTotals['1.5'].toFixed(1)} ชม.</strong>
         </div>
-        <div className="breakdown-row sub-row">
-          <span>วันหยุด OT3</span>
-          <strong>
-            {(payroll.totals.holidayBreakdown.OT3 ?? 0).toFixed(1)} ชม.
-          </strong>
+        <div className="breakdown-row">
+          <span>OT 2</span>
+          <strong>{rateTotals['2'].toFixed(1)} ชม.</strong>
+        </div>
+        <div className="breakdown-row">
+          <span>OT 3</span>
+          <strong>{rateTotals['3'].toFixed(1)} ชม.</strong>
         </div>
         <div className="breakdown-row">
           <span>ค่าข้าว OT {entries.length} วัน</span>
