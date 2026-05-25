@@ -33,8 +33,14 @@ export const defaultSettings = {
   periodEnd: '',
 }
 
+function toLocalDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate(),
+  ).padStart(2, '0')}`
+}
+
 export function getTodayKey() {
-  return new Date().toISOString().slice(0, 10)
+  return toLocalDateKey(new Date())
 }
 
 export function createDefaultEntries() {
@@ -63,7 +69,7 @@ export function formatDateWithWeekday(value) {
     day: 'numeric',
     month: 'short',
     year: '2-digit',
-  }).format(new Date(value))
+  }).format(new Date(`${value}T00:00:00`))
 }
 
 export function numberValue(value) {

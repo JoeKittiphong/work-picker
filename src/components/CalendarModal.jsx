@@ -36,6 +36,12 @@ function formatShortDateLabel(dateKey) {
   }).format(new Date(`${dateKey}T00:00:00`))
 }
 
+function toLocalDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate(),
+  ).padStart(2, '0')}`
+}
+
 function getDateRangeKeys(startDate, endDate) {
   if (!startDate || !endDate) return []
 
@@ -49,7 +55,7 @@ function getDateRangeKeys(startDate, endDate) {
   const cursor = new Date(first)
 
   while (cursor <= last) {
-    days.push(cursor.toISOString().slice(0, 10))
+    days.push(toLocalDateKey(cursor))
     cursor.setDate(cursor.getDate() + 1)
   }
 
