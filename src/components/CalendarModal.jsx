@@ -6,6 +6,8 @@ import {
   getEntryHours,
   getEntryTypeLabel,
   getHourlyRate,
+  isEntryWithinRange,
+  filterEntriesByDateRange,
   otTypes,
 } from '../payroll'
 import AppModal from './AppModal'
@@ -24,6 +26,52 @@ function getMonthLabel(monthKey) {
     month: 'long',
     year: 'numeric',
   }).format(new Date(year, month - 1, 1))
+}
+
+function formatShortDateLabel(dateKey) {
+  return new Intl.DateTimeFormat('th-TH', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(`${dateKey}T00:00:00`))
+}
+
+function getDateRangeKeys(startDate, endDate) {
+  if (!startDate || !endDate) return []
+
+  const start = new Date(`${startDate}T00:00:00`)
+  const end = new Date(`${endDate}T00:00:00`)
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return []
+
+  const [first, last] = start <= end ? [start, end] : [end, start]
+  const days = []
+  const cursor = new Date(first)
+
+  while (cursor <= last) {
+    days.push(cursor.toISOString().slice(0, 10))
+    cursor.setDate(cursor.getDate() + 1)
+  }
+
+  return days
+}
+
+function getRangeSections(rangeDays) {
+  return rangeDays.reduce((sections, dateKey) => {
+    const monthKey = dateKey.slice(0, 7)
+    const currentSection = sections[sections.length - 1]
+
+    if (!currentSection || currentSection.monthKey !== monthKey) {
+      sections.push({
+        monthKey,
+        days: [dateKey],
+      })
+      return sections
+    }
+
+    currentSection.days.push(dateKey)
+    return sections
+  }, [])
 }
 
 function getMonthDays(monthKey) {
@@ -75,8 +123,18 @@ function getDayTone(dayTypeEntries) {
   return 'neutral'
 }
 
+function isDateBoundary(dateKey, boundaryDate) {
+  return Boolean(boundaryDate) && dateKey === boundaryDate
+}
+
 function CalendarModal({ entries, onClose, settings }) {
   const hourlyRate = getHourlyRate(settings)
+  const showRangeView = Boolean(settings.periodStart && settings.periodEnd)
+  const rangeDays = useMemo(
+    () => getDateRangeKeys(settings.periodStart, settings.periodEnd),
+    [settings.periodEnd, settings.periodStart],
+  )
+  const rangeSections = useMemo(() => getRangeSections(rangeDays), [rangeDays])
 
   const monthKeys = useMemo(() => {
     return Array.from(new Set(entries.map((entry) => toMonthKey(entry.date)))).sort(
@@ -105,20 +163,21 @@ function CalendarModal({ entries, onClose, settings }) {
     : monthKeys[0] ?? getMonthKeyFromDate(new Date())
 
   const monthEntries = entries.filter((entry) => toMonthKey(entry.date) === monthKey)
+  const periodEntries = filterEntriesByDateRange(entries, settings.periodStart, settings.periodEnd)
+  const visibleEntries = showRangeView ? periodEntries : monthEntries
   const selectedDate =
     requestedSelectedDate && entriesByDate[requestedSelectedDate]
       ? requestedSelectedDate
-      : monthEntries[0]?.date ?? ''
+      : (showRangeView ? rangeDays[0] : monthEntries[0]?.date) ?? ''
 
   const selectedEntries = selectedDate ? entriesByDate[selectedDate] ?? [] : []
-  const days = getMonthDays(monthKey)
-  const monthTotalHours = monthEntries.reduce((sum, entry) => sum + getEntryHours(entry), 0)
-  const monthTotalAmount = monthEntries.reduce(
+  const periodTotalHours = periodEntries.reduce((sum, entry) => sum + getEntryHours(entry), 0)
+  const periodTotalAmount = periodEntries.reduce(
     (sum, entry) => sum + getEntryAmount(entry, hourlyRate),
     0,
   )
 
-  const entriesByDateAndType = monthEntries.reduce((acc, entry) => {
+  const entriesByDateAndType = visibleEntries.reduce((acc, entry) => {
     if (!acc[entry.date]) {
       acc[entry.date] = {}
     }
@@ -140,95 +199,167 @@ function CalendarModal({ entries, onClose, settings }) {
   return (
     <AppModal onClose={onClose} title="ปฏิทิน OT">
       <div className="calendar-shell">
-        <div className="calendar-toolbar">
-          <button
-            type="button"
-            className="calendar-nav"
-            onClick={() => {
-              const [year, month] = monthKey.split('-').map(Number)
-              setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month - 2, 1)))
-            }}
-          >
-            ก่อนหน้า
-          </button>
-          <strong>{getMonthLabel(monthKey)}</strong>
-          <button
-            type="button"
-            className="calendar-nav"
-            onClick={() => {
-              const [year, month] = monthKey.split('-').map(Number)
-              setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month, 1)))
-            }}
-          >
-            ถัดไป
-          </button>
-        </div>
-
-        {monthKeys.length > 1 && (
-          <div className="calendar-month-list">
-            {monthKeys.map((key) => (
-              <button
-                key={key}
-                type="button"
-                className={key === monthKey ? 'active' : ''}
-                onClick={() => setRequestedMonthKey(key)}
-              >
-                {getMonthLabel(key)}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="calendar-grid">
-          {weekdayLabels.map((label) => (
-            <div className="calendar-weekday" key={label}>
-              {label}
+        {showRangeView ? (
+          <>
+            <div className="calendar-toolbar">
+              <strong>
+                {formatShortDateLabel(settings.periodStart)} - {formatShortDateLabel(settings.periodEnd)}
+              </strong>
             </div>
-          ))}
 
-          {days.map((dateKey, index) => {
-            if (!dateKey) {
-              return <div className="calendar-day empty" key={`empty-${index}`} />
-            }
+            {rangeSections.map((section) => (
+              <section className="calendar-range-section" key={section.monthKey}>
+                <h3 className="calendar-range-title">{getMonthLabel(section.monthKey)}</h3>
+                <div className="calendar-range-weekdays">
+                  {weekdayLabels.map((label) => (
+                    <div className="calendar-weekday" key={`${section.monthKey}-${label}`}>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+                <div className="calendar-grid calendar-range-grid">
+                  {getMonthDays(section.monthKey).map((dateKey, index) => {
+                    if (!dateKey || !section.days.includes(dateKey)) {
+                      return <div className="calendar-day empty" key={`${section.monthKey}-empty-${index}`} />
+                    }
 
-            const dayEntries = entriesByDate[dateKey] ?? []
-            const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
-            const isSelected = selectedDate === dateKey
-            const hasEntries = dayEntries.length > 0
-            const dayTone = hasEntries ? getDayTone(dayTypeEntries) : 'neutral'
+                    const dayEntries = entriesByDate[dateKey] ?? []
+                    const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
+                    const isSelected = selectedDate === dateKey
+                    const hasEntries = dayEntries.length > 0
+                    const dayTone = hasEntries ? getDayTone(dayTypeEntries) : 'neutral'
+                    const isInSettingsRange = isEntryWithinRange(
+                      { date: dateKey },
+                      settings.periodStart,
+                      settings.periodEnd,
+                    )
+                    const isRangeStart = isDateBoundary(dateKey, settings.periodStart)
+                    const isRangeEnd = isDateBoundary(dateKey, settings.periodEnd)
 
-            return (
+                    return (
+                      <button
+                        key={dateKey}
+                        type="button"
+                        className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
+                        onClick={() => setRequestedSelectedDate(dateKey)}
+                      >
+                        <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
+                        {hasEntries ? (
+                          <div className="calendar-day-chips">
+                            {dayTypeEntries.map((item) => (
+                              <span className={`calendar-chip ${item.tone}`} key={`${dateKey}-${item.label}`}>
+                                {item.display}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </>
+        ) : (
+          <>
+            <div className="calendar-toolbar">
               <button
-                key={dateKey}
                 type="button"
-                className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''}`}
-                onClick={() => setRequestedSelectedDate(dateKey)}
+                className="calendar-nav"
+                onClick={() => {
+                  const [year, month] = monthKey.split('-').map(Number)
+                  setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month - 2, 1)))
+                }}
               >
-                <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
-                {hasEntries ? (
-                  <div className="calendar-day-chips">
-                    {dayTypeEntries.map((item) => (
-                      <span className={`calendar-chip ${item.tone}`} key={`${dateKey}-${item.label}`}>
-                        {item.display}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="calendar-day-empty-text">-</span>
-                )}
+                ก่อนหน้า
               </button>
-            )
-          })}
-        </div>
+              <strong>{getMonthLabel(monthKey)}</strong>
+              <button
+                type="button"
+                className="calendar-nav"
+                onClick={() => {
+                  const [year, month] = monthKey.split('-').map(Number)
+                  setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month, 1)))
+                }}
+              >
+                ถัดไป
+              </button>
+            </div>
+
+            {monthKeys.length > 1 && (
+              <div className="calendar-month-list">
+                {monthKeys.map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={key === monthKey ? 'active' : ''}
+                    onClick={() => setRequestedMonthKey(key)}
+                  >
+                    {getMonthLabel(key)}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="calendar-grid">
+              {weekdayLabels.map((label) => (
+                <div className="calendar-weekday" key={label}>
+                  {label}
+                </div>
+              ))}
+
+              {getMonthDays(monthKey).map((dateKey, index) => {
+                if (!dateKey) {
+                  return <div className="calendar-day empty" key={`empty-${index}`} />
+                }
+
+                const dayEntries = entriesByDate[dateKey] ?? []
+                const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
+                const isSelected = selectedDate === dateKey
+                const hasEntries = dayEntries.length > 0
+                const dayTone = hasEntries ? getDayTone(dayTypeEntries) : 'neutral'
+                const isInSettingsRange = isEntryWithinRange(
+                  { date: dateKey },
+                  settings.periodStart,
+                  settings.periodEnd,
+                )
+                const isRangeStart = isDateBoundary(dateKey, settings.periodStart)
+                const isRangeEnd = isDateBoundary(dateKey, settings.periodEnd)
+
+                return (
+                  <button
+                    key={dateKey}
+                    type="button"
+                    className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
+                    onClick={() => setRequestedSelectedDate(dateKey)}
+                  >
+                    <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
+                    {hasEntries ? (
+                      <div className="calendar-day-chips">
+                        {dayTypeEntries.map((item) => (
+                          <span className={`calendar-chip ${item.tone}`} key={`${dateKey}-${item.label}`}>
+                            {item.display}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="calendar-day-empty-text">-</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        )}
 
         <div className="calendar-summary">
           <div>
-            <span>รวมทั้งเดือน</span>
-            <strong>{monthTotalHours.toFixed(1)} ชม.</strong>
+            <span>รวมช่วงที่ตั้งค่า</span>
+            <strong>{periodTotalHours.toFixed(1)} ชม.</strong>
           </div>
           <div>
             <span>มูลค่า OT</span>
-            <strong>{formatMoney(monthTotalAmount)}</strong>
+            <strong>{formatMoney(periodTotalAmount)}</strong>
           </div>
         </div>
 
