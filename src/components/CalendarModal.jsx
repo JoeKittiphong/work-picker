@@ -78,7 +78,7 @@ function getMonthDays(monthKey) {
   const [year, month] = monthKey.split('-').map(Number)
   const firstDay = new Date(year, month - 1, 1)
   const lastDay = new Date(year, month, 0)
-  const leadingEmptyDays = (firstDay.getDay() + 6) % 7
+  const leadingEmptyDays = firstDay.getDay()
   const days = []
 
   for (let index = 0; index < leadingEmptyDays; index += 1) {
@@ -194,7 +194,7 @@ function CalendarModal({ entries, onClose, settings }) {
     return acc
   }, {})
 
-  const weekdayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
+  const weekdayLabels = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
 
   return (
     <AppModal onClose={onClose} title="ปฏิทิน OT">
