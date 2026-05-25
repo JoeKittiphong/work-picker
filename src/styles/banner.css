@@ -97,3 +97,26 @@
     font-size: 42px;
   }
 }
+
+@media (max-width: 380px) {
+  .pay-banner {
+    padding: 18px 16px;
+  }
+
+  .pay-banner::after {
+    right: 0;
+    top: 0;
+    width: 70px;
+    height: 70px;
+  }
+
+  .pay-banner .banner-label,
+  .pay-banner .banner-details {
+    font-size: 11px;
+  }
+
+  .pay-banner .banner-amount {
+    font-size: 34px;
+    margin: 6px 0;
+  }
+}

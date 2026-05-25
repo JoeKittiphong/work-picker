@@ -24,6 +24,7 @@ select {
   color: var(--ink);
   /* Mobile-friendly height */
   min-height: 48px;
+  min-width: 0;
   padding: 0 14px;
   width: 100%;
   box-sizing: border-box;
@@ -81,6 +82,7 @@ label,
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
+  min-width: 0;
   text-align: left;
   text-transform: uppercase;
 }
@@ -98,6 +100,8 @@ label,
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-transform: none;
   white-space: nowrap;
 }
@@ -224,6 +228,11 @@ label,
   gap: 8px;
 }
 
+.settings-two-col {
+  display: grid;
+  gap: 8px;
+}
+
 .settings-grid-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -321,6 +330,7 @@ label,
   input,
   select {
     min-height: 44px;
+    font-size: 15px;
     padding-left: 12px;
     padding-right: 12px;
   }
@@ -343,6 +353,7 @@ label,
 
   .settings-list {
     gap: 12px;
+    min-width: 0;
   }
 
   .settings-section-title {
@@ -354,6 +365,7 @@ label,
   .settings-grid-3,
   .settings-grid-2 {
     gap: 6px;
+    min-width: 0;
   }
 
   .settings-pay-row {
@@ -364,6 +376,7 @@ label,
   .settings-rate-note {
     gap: 6px;
     font-size: 11px;
+    min-width: 0;
   }
 
   .settings-rate-note strong {
@@ -391,5 +404,12 @@ label,
   .settings-grid-3 .number-field,
   .settings-grid-2 .number-field {
     min-width: 0;
+  }
+
+  .settings-grid-3 input,
+  .settings-grid-2 input,
+  .settings-date-grid input {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
