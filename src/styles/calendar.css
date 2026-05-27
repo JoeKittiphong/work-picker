@@ -413,3 +413,14 @@
     padding: 8px 10px;
   }
 }
+
+.calendar-day.today {
+  border: 1px solid var(--accent);
+  background: rgba(34, 211, 238, 0.15);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.3), inset 0 0 0 1px rgba(34, 211, 238, 0.4);
+}
+
+.calendar-day.today .calendar-day-number {
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
+}

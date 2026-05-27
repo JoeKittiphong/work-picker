@@ -9,6 +9,7 @@ import {
   isEntryWithinRange,
   filterEntriesByDateRange,
   otTypes,
+  getTodayKey,
 } from '../payroll'
 import AppModal from './AppModal'
 
@@ -80,6 +81,14 @@ function getRangeSections(rangeDays) {
   }, [])
 }
 
+function chunkArray(array, size) {
+  const chunks = []
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size))
+  }
+  return chunks
+}
+
 function getMonthDays(monthKey) {
   const [year, month] = monthKey.split('-').map(Number)
   const firstDay = new Date(year, month - 1, 1)
@@ -93,6 +102,14 @@ function getMonthDays(monthKey) {
 
   for (let day = 1; day <= lastDay.getDate(); day += 1) {
     days.push(`${monthKey}-${String(day).padStart(2, '0')}`)
+  }
+
+  const remainder = days.length % 7
+  if (remainder !== 0) {
+    const paddingNeeded = 7 - remainder
+    for (let index = 0; index < paddingNeeded; index += 1) {
+      days.push(null)
+    }
   }
 
   return days
@@ -177,11 +194,18 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
       : (showRangeView ? rangeDays[0] : monthEntries[0]?.date) ?? ''
 
   const selectedEntries = selectedDate ? entriesByDate[selectedDate] ?? [] : []
-  const periodTotalHours = periodEntries.reduce((sum, entry) => sum + getEntryHours(entry), 0)
   const periodTotalAmount = periodEntries.reduce(
     (sum, entry) => sum + getEntryAmount(entry, hourlyRate),
     0,
   )
+  const periodOt15Hours = periodEntries.reduce((sum, entry) => {
+    if (entry.type !== 'holiday') {
+      return sum + getEntryHours(entry)
+    }
+    return sum
+  }, 0)
+  const periodMorningDays = periodEntries.filter((entry) => entry.type === 'morning').length
+  const periodHolidayDays = periodEntries.filter((entry) => entry.type === 'holiday').length
 
   const entriesByDateAndType = visibleEntries.reduce((acc, entry) => {
     if (!acc[entry.date]) {
@@ -213,58 +237,68 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
               </strong>
             </div>
 
-            {rangeSections.map((section) => (
-              <section className="calendar-range-section" key={section.monthKey}>
-                <h3 className="calendar-range-title">{getMonthLabel(section.monthKey)}</h3>
-                <div className="calendar-range-weekdays">
-                  {weekdayLabels.map((label) => (
-                    <div className="calendar-weekday" key={`${section.monthKey}-${label}`}>
-                      {label}
-                    </div>
-                  ))}
-                </div>
-                <div className="calendar-grid calendar-range-grid">
-                  {getMonthDays(section.monthKey).map((dateKey, index) => {
-                    if (!dateKey || !section.days.includes(dateKey)) {
-                      return <div className="calendar-day empty" key={`${section.monthKey}-empty-${index}`} />
-                    }
+            {rangeSections.map((section) => {
+              const monthDays = getMonthDays(section.monthKey)
+              const weeks = chunkArray(monthDays, 7)
+              const visibleWeeks = weeks.filter((week) =>
+                week.some((dateKey) => dateKey && section.days.includes(dateKey))
+              )
+              const flatVisibleDays = visibleWeeks.flat()
 
-                    const dayEntries = entriesByDate[dateKey] ?? []
-                    const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
-                    const isSelected = selectedDate === dateKey
-                    const hasEntries = dayEntries.length > 0
-                    const dayTone = hasEntries ? getDayTone(dayTypeEntries) : 'neutral'
-                    const isInSettingsRange = isEntryWithinRange(
-                      { date: dateKey },
-                      settings.periodStart,
-                      settings.periodEnd,
-                    )
-                    const isRangeStart = isDateBoundary(dateKey, settings.periodStart)
-                    const isRangeEnd = isDateBoundary(dateKey, settings.periodEnd)
+              return (
+                <section className="calendar-range-section" key={section.monthKey}>
+                  <h3 className="calendar-range-title">{getMonthLabel(section.monthKey)}</h3>
+                  <div className="calendar-range-weekdays">
+                    {weekdayLabels.map((label) => (
+                      <div className="calendar-weekday" key={`${section.monthKey}-${label}`}>
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="calendar-grid calendar-range-grid">
+                    {flatVisibleDays.map((dateKey, index) => {
+                      if (!dateKey || !section.days.includes(dateKey)) {
+                        return <div className="calendar-day empty" key={`${section.monthKey}-empty-${index}`} />
+                      }
 
-                    return (
-                      <button
-                        key={dateKey}
-                        type="button"
-                        className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
-                        onClick={() => setRequestedSelectedDate(dateKey)}
-                      >
-                        <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
-                        {hasEntries ? (
-                          <div className="calendar-day-chips">
-                            {dayTypeEntries.map((item) => (
-                              <span className={`calendar-chip ${item.tone}`} key={`${dateKey}-${item.label}`}>
-                                {item.display}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null}
-                      </button>
-                    )
-                  })}
-                </div>
-              </section>
-            ))}
+                      const dayEntries = entriesByDate[dateKey] ?? []
+                      const dayTypeEntries = Object.values(entriesByDateAndType[dateKey] ?? {})
+                      const isSelected = selectedDate === dateKey
+                      const hasEntries = dayEntries.length > 0
+                      const dayTone = hasEntries ? getDayTone(dayTypeEntries) : 'neutral'
+                      const isInSettingsRange = isEntryWithinRange(
+                        { date: dateKey },
+                        settings.periodStart,
+                        settings.periodEnd,
+                      )
+                      const isRangeStart = isDateBoundary(dateKey, settings.periodStart)
+                      const isRangeEnd = isDateBoundary(dateKey, settings.periodEnd)
+                      const isToday = dateKey === getTodayKey()
+
+                      return (
+                        <button
+                          key={dateKey}
+                          type="button"
+                          className={`calendar-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
+                          onClick={() => setRequestedSelectedDate(dateKey)}
+                        >
+                          <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
+                          {hasEntries ? (
+                            <div className="calendar-day-chips">
+                              {dayTypeEntries.map((item) => (
+                                <span className={`calendar-chip ${item.tone}`} key={`${dateKey}-${item.label}`}>
+                                  {item.display}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </section>
+              )
+            })}
           </>
         ) : (
           <>
@@ -331,12 +365,13 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
                 )
                 const isRangeStart = isDateBoundary(dateKey, settings.periodStart)
                 const isRangeEnd = isDateBoundary(dateKey, settings.periodEnd)
+                const isToday = dateKey === getTodayKey()
 
                 return (
                   <button
                     key={dateKey}
                     type="button"
-                    className={`calendar-day ${isSelected ? 'selected' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
+                    className={`calendar-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
                     onClick={() => setRequestedSelectedDate(dateKey)}
                   >
                     <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
@@ -360,8 +395,16 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
 
         <div className="calendar-summary">
           <div>
-            <span>รวมช่วงที่ตั้งค่า</span>
-            <strong>{periodTotalHours.toFixed(1)} ชม.</strong>
+            <span>OT 1.5</span>
+            <strong>{periodOt15Hours.toFixed(1)} ชม.</strong>
+          </div>
+          <div>
+            <span>OT Morning</span>
+            <strong>{periodMorningDays} วัน</strong>
+          </div>
+          <div>
+            <span>OT วันหยุด</span>
+            <strong>{periodHolidayDays} วัน</strong>
           </div>
           <div>
             <span>มูลค่า OT</span>
