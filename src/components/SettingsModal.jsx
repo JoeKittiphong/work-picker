@@ -1,10 +1,10 @@
 import { memo } from 'react'
-import { formatMoney, getBaseSalary } from '../payroll'
+import { formatDisplayMoney, getBaseSalary } from '../payroll'
 import AppModal from './AppModal'
 import NumberField from './NumberField'
 import DateField from './DateField'
 
-function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, settings }) {
+function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, payroll, settings }) {
   return (
     <AppModal
       dateHint="เปอร์เซ็นต์จะคิดจากเงินเดือนฐาน"
@@ -30,7 +30,7 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
           <div className="settings-section-title">รายได้และรายการหัก</div>
           <div className="settings-rate-note">
             <span>ค่าแรงต่อชั่วโมง</span>
-            <strong>{formatMoney(payroll.hourlyRate)}</strong>
+            <strong>{formatDisplayMoney(payroll.hourlyRate, isPrivacyMode)}</strong>
           </div>
         </div>
 
@@ -57,7 +57,7 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
             label="ค่าตำแหน่ง"
             value={settings.position}
             onChange={(value) => onUpdate('position', value)}
-            helper={`รวมเป็นฐาน OT ${formatMoney(getBaseSalary(settings))}`}
+            helper={`รวมเป็นฐาน OT ${formatDisplayMoney(getBaseSalary(settings), isPrivacyMode)}`}
           />
         </div>
 
@@ -66,14 +66,14 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
             label="ประกันสังคม (%)"
             value={settings.socialSecurityPercent}
             onChange={(value) => onUpdate('socialSecurityPercent', value)}
-            helper={`หัก ${formatMoney(payroll.socialSecurityDeduction)}`}
+            helper={`หัก ${formatDisplayMoney(payroll.socialSecurityDeduction, isPrivacyMode)}`}
             step="0.1"
           />
           <NumberField
             label="กองทุนฯ (%)"
             value={settings.providentFundPercent}
             onChange={(value) => onUpdate('providentFundPercent', value)}
-            helper={`หัก ${formatMoney(payroll.providentFundDeduction)}`}
+            helper={`หัก ${formatDisplayMoney(payroll.providentFundDeduction, isPrivacyMode)}`}
             step="0.1"
           />
         </div>
@@ -93,11 +93,7 @@ function SettingsModal({ onClose, onUpdate, onExport, onImport, payroll, setting
 
         <div className="settings-section-title settings-backup-title">สำรองข้อมูล (Backup)</div>
         <div className="settings-backup-actions">
-          <button
-            type="button"
-            onClick={onExport}
-            className="settings-backup-button"
-          >
+          <button type="button" onClick={onExport} className="settings-backup-button">
             📥 Backup
           </button>
           <label className="settings-backup-import">

@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react'
 import {
-  formatMoney,
+  formatDisplayMoney,
   getEntryAmount,
   getEntryHours,
   getMealAllowanceForEntry,
@@ -22,7 +22,7 @@ function getRateSummaryLabel(rate) {
   return `OT ${rate}`
 }
 
-function PlanModal({ onClose, settings }) {
+function PlanModal({ isPrivacyMode, onClose, settings }) {
   const hourlyRate = getHourlyRate(settings)
   const [daysByType, setDaysByType] = useState(createInitialDays)
 
@@ -41,8 +41,6 @@ function PlanModal({ onClose, settings }) {
         key,
         type,
         dayCount,
-        perDayHours,
-        perDayAmount,
         totalHours,
         totalAmount,
         totalMealAllowance,
@@ -104,11 +102,11 @@ function PlanModal({ onClose, settings }) {
         <div className="plan-summary">
           <div>
             <span>คาดว่าจะได้รับ</span>
-            <strong>{formatMoney(expectedPay)}</strong>
+            <strong>{formatDisplayMoney(expectedPay, isPrivacyMode)}</strong>
           </div>
           <div>
             <span>รวม OT</span>
-            <strong>{formatMoney(totals.amount)}</strong>
+            <strong>{formatDisplayMoney(totals.amount, isPrivacyMode)}</strong>
           </div>
           <div>
             <span>รวมวัน</span>
@@ -131,11 +129,7 @@ function PlanModal({ onClose, settings }) {
               <div className="plan-card-top">
                 <div className="plan-type-cell">
                   <span className={`type-pill ${row.type.tone}`}>{row.type.label}</span>
-                  <p>
-                    {row.key === 'holiday'
-                      ? `OT1 8 ชม. + OT3 3 ชม.`
-                      : `${row.type.rate}x${row.type.hours}`}
-                  </p>
+                  <p>{row.key === 'holiday' ? 'OT1 8 ชม. + OT3 3 ชม.' : `${row.type.rate}x${row.type.hours}`}</p>
                 </div>
                 <div className="plan-hours-cell">
                   <span>จำนวนชั่วโมง</span>
@@ -155,8 +149,8 @@ function PlanModal({ onClose, settings }) {
                         [row.key]: Math.max(0, Math.floor(numberValue(event.target.value))),
                       }))
                     }
-                    />
-                  </label>
+                  />
+                </label>
               </div>
             </section>
           ))}

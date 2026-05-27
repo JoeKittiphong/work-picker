@@ -63,6 +63,10 @@ export function formatMoney(value) {
   }).format(Number.isFinite(value) ? value : 0)
 }
 
+export function formatDisplayMoney(value, isPrivacyMode) {
+  return isPrivacyMode ? '***' : formatMoney(value)
+}
+
 export function formatDateWithWeekday(value) {
   return new Intl.DateTimeFormat('th-TH', {
     weekday: 'long',
@@ -187,20 +191,23 @@ export function calculatePayroll(settings, entries) {
       result.ot += amount
       result.byType[entry.type] = (result.byType[entry.type] ?? 0) + hours
 
-      if (entry.type === 'morning') {
-        return result
-      }
-
       if (entry.type === 'holiday') {
+        result.holidayDays += 1
         holidayOtRules.forEach((rule) => {
           result.holidayBreakdown[rule.label] =
             (result.holidayBreakdown[rule.label] ?? 0) + rule.hours
         })
+      } else {
+        result.ot15Hours += hours
+      }
+
+      if (entry.type === 'morning') {
+        return result
       }
 
       return result
     },
-    { hours: 0, ot: 0, byType: {}, holidayBreakdown: {} },
+    { hours: 0, ot: 0, byType: {}, holidayBreakdown: {}, ot15Hours: 0, holidayDays: 0 },
   )
 
   const socialSecurityDeduction =

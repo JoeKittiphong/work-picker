@@ -33,7 +33,7 @@ function App() {
   const [entries, setEntries] = useState([])
   const [activeModal, setActiveModal] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isPrivacyMode, setIsPrivacyMode] = useState(false)
+  const [isPrivacyMode, setIsPrivacyMode] = useState(true)
   const [deletingEntryId, setDeletingEntryId] = useState(null)
   const [toast, setToast] = useState(null)
 
@@ -175,6 +175,7 @@ function App() {
           <EntryList
             entries={orderedEntries}
             hourlyRate={payroll.hourlyRate}
+            isPrivacyMode={isPrivacyMode}
             periodEnd={settings.periodEnd}
             periodStart={settings.periodStart}
             onRemove={requestRemoveEntry}
@@ -253,6 +254,7 @@ function App() {
       {activeModal === 'summary' && (
         <SummaryModal
           entries={periodEntries}
+          isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           payroll={payroll}
           settings={settings}
@@ -262,6 +264,7 @@ function App() {
       {activeModal === 'calendar' && (
         <CalendarModal
           entries={entries}
+          isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           settings={settings}
         />
@@ -269,6 +272,7 @@ function App() {
 
       {activeModal === 'plan' && (
         <PlanModal
+          isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           settings={settings}
         />
@@ -276,6 +280,7 @@ function App() {
 
       {activeModal === 'settings' && (
         <SettingsModal
+          isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           onUpdate={updateSettings}
           onExport={handleExport}

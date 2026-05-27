@@ -1,12 +1,11 @@
 import { memo } from 'react'
-import {
-  formatMoney,
-  getEntryRateBreakdown,
-  numberValue,
-} from '../payroll'
+import { formatDisplayMoney, getEntryRateBreakdown, numberValue } from '../payroll'
 import AppModal from './AppModal'
 
-function SummaryModal({ entries, onClose, payroll, settings }) {
+function SummaryModal({ entries, isPrivacyMode, onClose, payroll, settings }) {
+  const displayDeduction = (value) =>
+    isPrivacyMode ? '***' : `-${formatDisplayMoney(value, false)}`
+
   const rateTotals = entries.reduce(
     (acc, entry) => {
       const breakdown = getEntryRateBreakdown(entry)
@@ -36,23 +35,23 @@ function SummaryModal({ entries, onClose, payroll, settings }) {
         </div>
         <div className="breakdown-row">
           <span>ค่าข้าว OT {entries.length} วัน</span>
-          <strong>{formatMoney(payroll.mealAllowance)}</strong>
+          <strong>{formatDisplayMoney(payroll.mealAllowance, isPrivacyMode)}</strong>
         </div>
         <div className="breakdown-row">
           <span>ประกันสังคม {numberValue(settings.socialSecurityPercent)}%</span>
-          <strong>-{formatMoney(payroll.socialSecurityDeduction)}</strong>
+          <strong>{displayDeduction(payroll.socialSecurityDeduction)}</strong>
         </div>
         <div className="breakdown-row">
           <span>กองทุนสำรองเลี้ยงชีพ {numberValue(settings.providentFundPercent)}%</span>
-          <strong>-{formatMoney(payroll.providentFundDeduction)}</strong>
+          <strong>{displayDeduction(payroll.providentFundDeduction)}</strong>
         </div>
         <div className="breakdown-row">
           <span>รายการหักอื่น ๆ</span>
-          <strong>-{formatMoney(settings.deductions)}</strong>
+          <strong>{displayDeduction(settings.deductions)}</strong>
         </div>
         <div className="breakdown-row total">
           <span>ยอดสุทธิประมาณการ</span>
-          <strong>{formatMoney(payroll.expectedPay)}</strong>
+          <strong>{formatDisplayMoney(payroll.expectedPay, isPrivacyMode)}</strong>
         </div>
       </div>
     </AppModal>

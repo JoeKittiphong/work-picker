@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react'
 import {
-  formatMoney,
+  formatDisplayMoney,
   formatDateWithWeekday,
   getEntryAmount,
   getEntryHours,
@@ -133,7 +133,7 @@ function isDateBoundary(dateKey, boundaryDate) {
   return Boolean(boundaryDate) && dateKey === boundaryDate
 }
 
-function CalendarModal({ entries, onClose, settings }) {
+function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
   const hourlyRate = getHourlyRate(settings)
   const showRangeView = Boolean(settings.periodStart && settings.periodEnd)
   const rangeDays = useMemo(
@@ -365,7 +365,7 @@ function CalendarModal({ entries, onClose, settings }) {
           </div>
           <div>
             <span>มูลค่า OT</span>
-            <strong>{formatMoney(periodTotalAmount)}</strong>
+            <strong>{formatDisplayMoney(periodTotalAmount, isPrivacyMode)}</strong>
           </div>
         </div>
 
@@ -388,7 +388,9 @@ function CalendarModal({ entries, onClose, settings }) {
                       <span className={`type-pill ${type.tone}`}>{getEntryTypeLabel(entry)}</span>
                       <strong>{hours.toFixed(1)} ชม.</strong>
                     </div>
-                    <div className="calendar-entry-side">{formatMoney(amount)}</div>
+                    <div className="calendar-entry-side">
+                      {formatDisplayMoney(amount, isPrivacyMode)}
+                    </div>
                   </div>
                 )
               })}
