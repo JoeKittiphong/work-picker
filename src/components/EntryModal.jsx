@@ -9,14 +9,15 @@ import {
 } from '../payroll'
 import AppModal from './AppModal'
 
-export default function EntryModal({ onClose, onSubmit }) {
+export default function EntryModal({ onClose, onSubmit, onRemove, initialDate, initialEntry }) {
   const [form, setForm] = useState({
-    date: getTodayKey(),
-    type: selectableOtKeys[0],
-    hours: 3,
-    note: '',
+    date: initialEntry?.date ?? initialDate ?? getTodayKey(),
+    type: initialEntry?.type ?? selectableOtKeys[0],
+    hours: initialEntry?.hours ?? 3,
+    note: initialEntry?.note ?? '',
   })
 
+  const isEditMode = Boolean(initialEntry)
   const selectedType = otTypes[form.type] ?? otTypes.workday
   const hasFixedHours = typeof selectedType.hours === 'number' || form.type === 'holiday'
 
@@ -24,7 +25,7 @@ export default function EntryModal({ onClose, onSubmit }) {
     event.preventDefault()
 
     onSubmit({
-      id: crypto.randomUUID(),
+      id: initialEntry?.id ?? crypto.randomUUID(),
       date: form.date,
       type: form.type,
       hours: hasFixedHours
@@ -38,7 +39,7 @@ export default function EntryModal({ onClose, onSubmit }) {
     <AppModal
       dateHint={formatDateWithWeekday(form.date)}
       onClose={onClose}
-      title="เพิ่มรายการ OT"
+      title={isEditMode ? 'แก้ไขรายการ OT' : 'เพิ่มรายการ OT'}
     >
       <form className="entry-form" onSubmit={submitEntry}>
         <label>
@@ -47,6 +48,7 @@ export default function EntryModal({ onClose, onSubmit }) {
             value={form.date}
             onChange={(event) => setForm({ ...form, date: event.target.value })}
             type="date"
+            disabled={isEditMode}
           />
         </label>
 
@@ -102,9 +104,32 @@ export default function EntryModal({ onClose, onSubmit }) {
           />
         </label>
 
-        <button className="primary-button" type="submit">
-          เพิ่มรายการ
-        </button>
+        <div style={{ display: 'grid', gridTemplateColumns: isEditMode && onRemove ? '1fr 1fr' : '1fr', gap: '12px', marginTop: '16px', width: '100%' }}>
+          {isEditMode && onRemove && (
+            <button
+              type="button"
+              onClick={() => {
+                onRemove(initialEntry.id)
+                onClose()
+              }}
+              style={{
+                padding: '14px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '14px',
+              }}
+            >
+              ลบรายการ
+            </button>
+          )}
+          <button className="primary-button" type="submit" style={{ marginTop: 0 }}>
+            {isEditMode ? 'บันทึกการแก้ไข' : 'เพิ่มรายการ'}
+          </button>
+        </div>
       </form>
     </AppModal>
   )

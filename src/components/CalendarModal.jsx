@@ -12,6 +12,7 @@ import {
   getTodayKey,
 } from '../payroll'
 import AppModal from './AppModal'
+import EntryModal from './EntryModal'
 
 function getMonthKeyFromDate(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
@@ -150,7 +151,15 @@ function isDateBoundary(dateKey, boundaryDate) {
   return Boolean(boundaryDate) && dateKey === boundaryDate
 }
 
-function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
+function CalendarModal({
+  entries,
+  isPrivacyMode,
+  onClose,
+  settings,
+  onAdd,
+  onEdit,
+  onRemove,
+}) {
   const hourlyRate = getHourlyRate(settings)
   const showRangeView = Boolean(settings.periodStart && settings.periodEnd)
   const rangeDays = useMemo(
@@ -169,6 +178,8 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
     () => monthKeys[0] ?? getMonthKeyFromDate(new Date()),
   )
   const [requestedSelectedDate, setRequestedSelectedDate] = useState('')
+  const [activeEntryModal, setActiveEntryModal] = useState(null)
+  const [selectedEntryForEdit, setSelectedEntryForEdit] = useState(null)
 
   const entriesByDate = useMemo(() => {
     return entries.reduce((acc, entry) => {
@@ -194,6 +205,19 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
       : (showRangeView ? rangeDays[0] : monthEntries[0]?.date) ?? ''
 
   const selectedEntries = selectedDate ? entriesByDate[selectedDate] ?? [] : []
+
+  const handleSelectDate = (dateKey) => {
+    setRequestedSelectedDate(dateKey)
+
+    const dayEntries = entriesByDate[dateKey] ?? []
+    if (dayEntries.length > 0) {
+      setSelectedEntryForEdit(dayEntries[0])
+      setActiveEntryModal('edit')
+    } else {
+      setSelectedEntryForEdit(null)
+      setActiveEntryModal('add')
+    }
+  }
   const periodTotalAmount = periodEntries.reduce(
     (sum, entry) => sum + getEntryAmount(entry, hourlyRate),
     0,
@@ -280,7 +304,7 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
                           key={dateKey}
                           type="button"
                           className={`calendar-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
-                          onClick={() => setRequestedSelectedDate(dateKey)}
+                          onClick={() => handleSelectDate(dateKey)}
                         >
                           <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
                           {hasEntries ? (
@@ -372,7 +396,7 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
                     key={dateKey}
                     type="button"
                     className={`calendar-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${hasEntries ? 'has-entries' : ''} ${dayTone !== 'neutral' ? `type-${dayTone}` : ''} ${isInSettingsRange ? 'in-settings-range' : ''} ${isRangeStart ? 'range-start' : ''} ${isRangeEnd ? 'range-end' : ''}`}
-                    onClick={() => setRequestedSelectedDate(dateKey)}
+                    onClick={() => handleSelectDate(dateKey)}
                   >
                     <span className="calendar-day-number">{Number(dateKey.slice(-2))}</span>
                     {hasEntries ? (
@@ -429,7 +453,14 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
                   <div className="calendar-entry" key={entry.id}>
                     <div className="calendar-entry-main">
                       <span className={`type-pill ${type.tone}`}>{getEntryTypeLabel(entry)}</span>
-                      <strong>{hours.toFixed(1)} ชม.</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                        <strong style={{ color: '#fff' }}>{hours.toFixed(1)} ชม.</strong>
+                        {entry.note && (
+                          <span style={{ fontSize: '11px', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                            ({entry.note})
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="calendar-entry-side">
                       {formatDisplayMoney(amount, isPrivacyMode)}
@@ -441,6 +472,27 @@ function CalendarModal({ entries, isPrivacyMode, onClose, settings }) {
           )}
         </div>
       </div>
+
+      {activeEntryModal && (
+        <EntryModal
+          initialDate={requestedSelectedDate}
+          initialEntry={selectedEntryForEdit}
+          onClose={() => {
+            setActiveEntryModal(null)
+            setSelectedEntryForEdit(null)
+          }}
+          onSubmit={(entry) => {
+            if (activeEntryModal === 'edit') {
+              onEdit(entry)
+            } else {
+              onAdd(entry)
+            }
+            setActiveEntryModal(null)
+            setSelectedEntryForEdit(null)
+          }}
+          onRemove={onRemove}
+        />
+      )}
     </AppModal>
   )
 }

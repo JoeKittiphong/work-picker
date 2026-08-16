@@ -112,6 +112,14 @@ function App() {
     }
   }, [deletingEntryId])
 
+  const editEntry = useCallback((updatedEntry) => {
+    setEntries((prev) => {
+      const nextEntries = prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry))
+      saveEntries(nextEntries)
+      return nextEntries
+    })
+  }, [])
+
   const handleExport = useCallback(() => {
     const data = { settings, entries }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -267,6 +275,9 @@ function App() {
           isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           settings={settings}
+          onAdd={addEntry}
+          onEdit={editEntry}
+          onRemove={requestRemoveEntry}
         />
       )}
 
