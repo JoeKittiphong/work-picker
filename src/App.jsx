@@ -31,11 +31,12 @@ import QrCodeModal from './components/QrCodeModal'
 function App() {
   const [settings, setSettings] = useState(defaultSettings)
   const [entries, setEntries] = useState([])
-  const [activeModal, setActiveModal] = useState(null)
+  const [activeModal, setActiveModal] = useState('calendar')
   const [isLoading, setIsLoading] = useState(true)
   const [isPrivacyMode, setIsPrivacyMode] = useState(true)
   const [deletingEntryId, setDeletingEntryId] = useState(null)
   const [toast, setToast] = useState(null)
+  const [calendarEditState, setCalendarEditState] = useState(null)
 
   const periodEntries = useMemo(
     () =>
@@ -120,6 +121,15 @@ function App() {
     })
   }, [])
 
+  const handleCalendarDateSelect = useCallback((dateKey) => {
+    const dayEntries = entries.filter((e) => e.date === dateKey)
+    if (dayEntries.length > 0) {
+      setCalendarEditState({ date: dateKey, entry: dayEntries[0] })
+    } else {
+      setCalendarEditState({ date: dateKey, entry: null })
+    }
+  }, [entries])
+
   const handleExport = useCallback(() => {
     const data = { settings, entries }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -193,6 +203,15 @@ function App() {
 
       {/* Bottom Navigation */}
       <nav className="bottom-nav" aria-label="เมนูหลัก">
+        <button onClick={() => setActiveModal('calendar')} type="button" className={activeModal === 'calendar' ? 'active' : ''}>
+          <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <line x1="3" y1="9" x2="21" y2="9" />
+            <line x1="8" y1="3.5" x2="8" y2="7" />
+            <line x1="16" y1="3.5" x2="16" y2="7" />
+          </svg>
+          <span className="nav-label">ปฏิทิน</span>
+        </button>
         <button onClick={() => setActiveModal(null)} type="button" className={!activeModal ? 'active' : ''}>
           <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -210,15 +229,6 @@ function App() {
             <line x1="6" y1="20" x2="6" y2="14" />
           </svg>
           <span className="nav-label">สรุป</span>
-        </button>
-        <button onClick={() => setActiveModal('calendar')} type="button" className={activeModal === 'calendar' ? 'active' : ''}>
-          <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="5" width="18" height="16" rx="2" />
-            <line x1="3" y1="9" x2="21" y2="9" />
-            <line x1="8" y1="3.5" x2="8" y2="7" />
-            <line x1="16" y1="3.5" x2="16" y2="7" />
-          </svg>
-          <span className="nav-label">ปฏิทิน</span>
         </button>
         <button onClick={() => setActiveModal('entry')} type="button" className={`nav-center-action ${activeModal === 'entry' ? 'active' : ''}`}>
           <div style={{ background: 'var(--accent)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2px', boxShadow: '0 4px 12px var(--accent-glow)' }}>
@@ -275,8 +285,23 @@ function App() {
           isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           settings={settings}
-          onAdd={addEntry}
-          onEdit={editEntry}
+          onDateSelect={handleCalendarDateSelect}
+        />
+      )}
+
+      {calendarEditState && (
+        <EntryModal
+          initialDate={calendarEditState.date}
+          initialEntry={calendarEditState.entry}
+          onClose={() => setCalendarEditState(null)}
+          onSubmit={(entry) => {
+            if (calendarEditState.entry) {
+              editEntry(entry)
+            } else {
+              addEntry(entry)
+            }
+            setCalendarEditState(null)
+          }}
           onRemove={requestRemoveEntry}
         />
       )}

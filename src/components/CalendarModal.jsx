@@ -12,7 +12,6 @@ import {
   getTodayKey,
 } from '../payroll'
 import AppModal from './AppModal'
-import EntryModal from './EntryModal'
 
 function getMonthKeyFromDate(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
@@ -156,9 +155,7 @@ function CalendarModal({
   isPrivacyMode,
   onClose,
   settings,
-  onAdd,
-  onEdit,
-  onRemove,
+  onDateSelect,
 }) {
   const hourlyRate = getHourlyRate(settings)
   const showRangeView = Boolean(settings.periodStart && settings.periodEnd)
@@ -178,8 +175,6 @@ function CalendarModal({
     () => monthKeys[0] ?? getMonthKeyFromDate(new Date()),
   )
   const [requestedSelectedDate, setRequestedSelectedDate] = useState('')
-  const [activeEntryModal, setActiveEntryModal] = useState(null)
-  const [selectedEntryForEdit, setSelectedEntryForEdit] = useState(null)
 
   const entriesByDate = useMemo(() => {
     return entries.reduce((acc, entry) => {
@@ -208,15 +203,7 @@ function CalendarModal({
 
   const handleSelectDate = (dateKey) => {
     setRequestedSelectedDate(dateKey)
-
-    const dayEntries = entriesByDate[dateKey] ?? []
-    if (dayEntries.length > 0) {
-      setSelectedEntryForEdit(dayEntries[0])
-      setActiveEntryModal('edit')
-    } else {
-      setSelectedEntryForEdit(null)
-      setActiveEntryModal('add')
-    }
+    onDateSelect(dateKey)
   }
   const periodTotalAmount = periodEntries.reduce(
     (sum, entry) => sum + getEntryAmount(entry, hourlyRate),
@@ -472,27 +459,6 @@ function CalendarModal({
           )}
         </div>
       </div>
-
-      {activeEntryModal && (
-        <EntryModal
-          initialDate={requestedSelectedDate}
-          initialEntry={selectedEntryForEdit}
-          onClose={() => {
-            setActiveEntryModal(null)
-            setSelectedEntryForEdit(null)
-          }}
-          onSubmit={(entry) => {
-            if (activeEntryModal === 'edit') {
-              onEdit(entry)
-            } else {
-              onAdd(entry)
-            }
-            setActiveEntryModal(null)
-            setSelectedEntryForEdit(null)
-          }}
-          onRemove={onRemove}
-        />
-      )}
     </AppModal>
   )
 }
