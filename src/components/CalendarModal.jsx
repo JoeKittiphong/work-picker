@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from 'react'
 import {
   formatDisplayMoney,
   formatDateWithWeekday,
+  formatShortDateLabel,
   getEntryAmount,
   getEntryHours,
   getEntryTypeLabel,
@@ -27,14 +28,6 @@ function getMonthLabel(monthKey) {
     month: 'long',
     year: 'numeric',
   }).format(new Date(year, month - 1, 1))
-}
-
-function formatShortDateLabel(dateKey) {
-  return new Intl.DateTimeFormat('th-TH', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  }).format(new Date(`${dateKey}T00:00:00`))
 }
 
 function toLocalDateKey(date) {
@@ -333,8 +326,12 @@ function CalendarModal({
                 type="button"
                 className="calendar-nav"
                 onClick={() => {
-                  const [year, month] = monthKey.split('-').map(Number)
-                  setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month - 2, 1)))
+                  if (onShiftPeriod) {
+                    onShiftPeriod(-1)
+                  } else {
+                    const [year, month] = monthKey.split('-').map(Number)
+                    setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month - 2, 1)))
+                  }
                 }}
               >
                 ก่อนหน้า
@@ -344,8 +341,12 @@ function CalendarModal({
                 type="button"
                 className="calendar-nav"
                 onClick={() => {
-                  const [year, month] = monthKey.split('-').map(Number)
-                  setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month, 1)))
+                  if (onShiftPeriod) {
+                    onShiftPeriod(1)
+                  } else {
+                    const [year, month] = monthKey.split('-').map(Number)
+                    setRequestedMonthKey(getMonthKeyFromDate(new Date(year, month, 1)))
+                  }
                 }}
               >
                 ถัดไป

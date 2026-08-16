@@ -247,6 +247,34 @@
   animation-delay: calc(var(--stagger-i, 0) * 80ms);
 }
 
+
+/* ══════════════════════════════════════
+   Summary Cards
+   ══════════════════════════════════════ */
+
+.summary-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summary-card {
+  /* Frosted glass */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: left;
+  transition:
+    background var(--duration-fast) ease,
+    transform var(--duration-normal) var(--ease-out);
+
+  animation: card-enter var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--stagger-i, 0) * 80ms);
+}
+
 .summary-card:active {
   background: rgba(255, 255, 255, 0.08);
   transform: scale(0.98);
@@ -266,4 +294,66 @@
   font-size: 20px;
   font-weight: 800;
   margin-top: 6px;
+}
+
+/* ── Record Toolbar ── */
+
+.record-toolbar {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto 1fr auto;
+  margin: 10px 0 14px;
+}
+
+.record-toolbar strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.record-nav {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  min-height: 42px;
+  padding: 0 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.record-nav:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@media (hover: hover) {
+  .record-nav:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@media (max-width: 380px) {
+  .record-toolbar {
+    gap: 6px;
+    margin: 8px 0 10px;
+  }
+
+  .record-toolbar strong {
+    font-size: 13px;
+  }
+
+  .record-nav {
+    min-height: 38px;
+    font-size: 13px;
+    padding: 0 8px;
+  }
 }

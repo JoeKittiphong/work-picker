@@ -77,6 +77,15 @@ export function formatDateWithWeekday(value) {
   }).format(new Date(`${value}T00:00:00`))
 }
 
+export function formatShortDateLabel(dateKey) {
+  if (!dateKey) return ''
+  return new Intl.DateTimeFormat('th-TH', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(`${dateKey}T00:00:00`))
+}
+
 export function numberValue(value) {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0

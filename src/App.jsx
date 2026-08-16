@@ -4,10 +4,11 @@ import {
   createDefaultEntries,
   defaultSettings,
   filterEntriesByDateRange,
+  formatShortDateLabel,
   numberValue,
   sortEntriesByDateDesc,
 } from './payroll'
-import { loadAll, saveSettings, saveEntries, saveAll } from './db'
+import { loadAll, saveSettings, saveEntries } from './db'
 
 /* ── Styles ── */
 import './styles/animations.css'
@@ -78,20 +79,62 @@ function App() {
     if (key !== 'periodStart' && key !== 'periodEnd') {
       finalValue = numberValue(value)
     }
-    const nextSettings = { ...settings, [key]: finalValue }
+
+    let updatedSavedPeriods = settings.savedPeriods ?? []
+    const existingIndex = updatedSavedPeriods.findIndex(
+      (p) => p.start === settings.periodStart && p.end === settings.periodEnd,
+    )
+    if (existingIndex !== -1 && key !== 'periodStart' && key !== 'periodEnd') {
+      const list = [...updatedSavedPeriods]
+      list[existingIndex] = {
+        ...list[existingIndex],
+        [key]: finalValue,
+      }
+      updatedSavedPeriods = list
+    }
+
+    const nextSettings = {
+      ...settings,
+      [key]: finalValue,
+      savedPeriods: updatedSavedPeriods,
+    }
     setSettings(nextSettings)
     saveSettings(nextSettings)
   }, [settings])
 
   const savePeriod = useCallback(() => {
     if (!settings.periodStart || !settings.periodEnd) return
-    const existing = (settings.savedPeriods ?? []).some(
+
+    const saved = settings.savedPeriods ?? []
+    const existingIndex = saved.findIndex(
       (p) => p.start === settings.periodStart && p.end === settings.periodEnd,
     )
-    if (existing) {
-      showToast('ช่วงเวลานี้ถูกบันทึกไว้แล้ว')
+
+    if (existingIndex !== -1) {
+      const updatedList = [...saved]
+      updatedList[existingIndex] = {
+        ...updatedList[existingIndex],
+        start: settings.periodStart,
+        end: settings.periodEnd,
+        salary: settings.salary,
+        welfare: settings.welfare,
+        diligence: settings.diligence,
+        position: settings.position,
+        otherIncome: settings.otherIncome,
+        deductions: settings.deductions,
+        socialSecurityPercent: settings.socialSecurityPercent,
+        providentFundPercent: settings.providentFundPercent,
+      }
+      const nextSettings = {
+        ...settings,
+        savedPeriods: updatedList,
+      }
+      setSettings(nextSettings)
+      saveSettings(nextSettings)
+      showToast('บันทึกการแก้ไขข้อมูลช่วงนี้แล้ว')
       return
     }
+
     const newPeriod = {
       id: crypto.randomUUID(),
       start: settings.periodStart,
@@ -107,11 +150,11 @@ function App() {
     }
     const nextSettings = {
       ...settings,
-      savedPeriods: [...(settings.savedPeriods ?? []), newPeriod],
+      savedPeriods: [...saved, newPeriod],
     }
     setSettings(nextSettings)
     saveSettings(nextSettings)
-    showToast('บันทึกช่วงเวลาแล้ว')
+    showToast('บันทึกช่วงเวลาใหม่แล้ว')
   }, [settings, showToast])
 
   const loadPeriod = useCallback((period) => {
@@ -142,7 +185,40 @@ function App() {
   }, [settings])
 
   const shiftPeriod = useCallback((direction) => {
-    if (!settings.periodStart || !settings.periodEnd) return
+    const saved = settings.savedPeriods ?? []
+
+    if (!settings.periodStart || !settings.periodEnd) {
+      if (saved.length > 0) {
+        loadPeriod(saved[0])
+        return
+      }
+      const now = new Date()
+      const targetMonth = new Date(now.getFullYear(), now.getMonth() + direction, 1)
+      const start = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1)
+      const end = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0)
+      const toKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      const nextSettings = {
+        ...settings,
+        periodStart: toKey(start),
+        periodEnd: toKey(end),
+      }
+      setSettings(nextSettings)
+      saveSettings(nextSettings)
+      return
+    }
+
+    const currentIndex = saved.findIndex(
+      (p) => p.start === settings.periodStart && p.end === settings.periodEnd,
+    )
+
+    if (currentIndex !== -1) {
+      const targetIndex = currentIndex + direction
+      if (targetIndex >= 0 && targetIndex < saved.length) {
+        loadPeriod(saved[targetIndex])
+        return
+      }
+    }
+
     const start = new Date(settings.periodStart)
     const end = new Date(settings.periodEnd)
     const diffMs = end.getTime() - start.getTime()
@@ -151,14 +227,26 @@ function App() {
     const newStart = new Date(start.getTime() + shiftMs)
     const newEnd = new Date(end.getTime() + shiftMs)
     const toKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const shiftedStartKey = toKey(newStart)
+    const shiftedEndKey = toKey(newEnd)
+
+    const matchingSaved = saved.find(
+      (p) => p.start === shiftedStartKey && p.end === shiftedEndKey,
+    )
+
+    if (matchingSaved) {
+      loadPeriod(matchingSaved)
+      return
+    }
+
     const nextSettings = {
       ...settings,
-      periodStart: toKey(newStart),
-      periodEnd: toKey(newEnd),
+      periodStart: shiftedStartKey,
+      periodEnd: shiftedEndKey,
     }
     setSettings(nextSettings)
     saveSettings(nextSettings)
-  }, [settings])
+  }, [loadPeriod, settings])
 
   const addEntry = useCallback((entry) => {
     const duplicateEntry = entries.some((existingEntry) => existingEntry.date === entry.date)
@@ -207,39 +295,6 @@ function App() {
     }
   }, [entries])
 
-  const handleExport = useCallback(() => {
-    const data = { settings, entries }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `work-picker-backup-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }, [entries, settings])
-
-  const handleImport = useCallback((event) => {
-    const file = event.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result)
-        if (data.settings && Array.isArray(data.entries)) {
-          setSettings(data.settings)
-          setEntries(data.entries)
-          saveAll(data.settings, data.entries)
-          alert('กู้คืนข้อมูลสำเร็จ!')
-        } else {
-          alert('ไฟล์ไม่รองรับ หรือข้อมูลไม่ครบถ้วน')
-        }
-      } catch {
-        alert('เกิดข้อผิดพลาดในการอ่านไฟล์')
-      }
-    }
-    reader.readAsText(file)
-    event.target.value = '' // Reset input
-  }, [])
 
   if (isLoading) {
     return (
@@ -259,6 +314,28 @@ function App() {
         isPrivacyMode={isPrivacyMode}
         onTogglePrivacy={() => setIsPrivacyMode(!isPrivacyMode)}
       />
+
+      <div className="record-toolbar">
+        <button
+          type="button"
+          className="record-nav"
+          onClick={() => shiftPeriod(-1)}
+        >
+          ก่อนหน้า
+        </button>
+        <strong>
+          {settings.periodStart && settings.periodEnd
+            ? `${formatShortDateLabel(settings.periodStart)} - ${formatShortDateLabel(settings.periodEnd)}`
+            : 'ทุกช่วงเวลา'}
+        </strong>
+        <button
+          type="button"
+          className="record-nav"
+          onClick={() => shiftPeriod(1)}
+        >
+          ถัดไป
+        </button>
+      </div>
 
       <section className="panel">
         {entries.length === 0 ? (
@@ -351,6 +428,7 @@ function App() {
           entries={periodEntries}
           isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
+          onShiftPeriod={shiftPeriod}
           payroll={payroll}
           settings={settings}
         />
@@ -397,8 +475,6 @@ function App() {
           isPrivacyMode={isPrivacyMode}
           onClose={() => setActiveModal(null)}
           onUpdate={updateSettings}
-          onExport={handleExport}
-          onImport={handleImport}
           onSavePeriod={savePeriod}
           onLoadPeriod={loadPeriod}
           onDeletePeriod={deletePeriod}

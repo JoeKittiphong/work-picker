@@ -12,7 +12,7 @@ function formatPeriodLabel(start, end) {
   return `${fmt(start)} — ${fmt(end)}`
 }
 
-function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, onSavePeriod, onLoadPeriod, onDeletePeriod, payroll, settings }) {
+function SettingsModal({ isPrivacyMode, onClose, onUpdate, onSavePeriod, onLoadPeriod, onDeletePeriod, payroll, settings }) {
   const hasPeriod = Boolean(settings.periodStart && settings.periodEnd)
   const savedPeriods = settings.savedPeriods ?? []
 
@@ -80,7 +80,9 @@ function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, o
             className="settings-save-period-btn"
             onClick={onSavePeriod}
           >
-            💾 บันทึกช่วงนี้
+            {savedPeriods.some((p) => p.start === settings.periodStart && p.end === settings.periodEnd)
+              ? '💾 บันทึกการแก้ไขช่วงนี้'
+              : '💾 บันทึกเป็นช่วงใหม่'}
           </button>
         )}
 
@@ -148,21 +150,11 @@ function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, o
             onChange={(value) => onUpdate('deductions', value)}
           />
         </div>
-
-        <div className="settings-section-title settings-backup-title">สำรองข้อมูล (Backup)</div>
-        <div className="settings-backup-actions">
-          <button type="button" onClick={onExport} className="settings-backup-button">
-            📥 Backup
-          </button>
-          <label className="settings-backup-import">
-            📤 Import Backup
-            <input type="file" accept=".json" onChange={onImport} style={{ display: 'none' }} />
-          </label>
-        </div>
       </div>
     </AppModal>
   )
 }
 
 export default memo(SettingsModal)
+
 

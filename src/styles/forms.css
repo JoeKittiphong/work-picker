@@ -248,36 +248,6 @@ label,
   margin-top: 8px;
 }
 
-.settings-backup-title {
-  padding-top: 24px;
-}
-
-.settings-backup-actions {
-  display: grid;
-  gap: 12px;
-}
-
-.settings-backup-button,
-.settings-backup-import {
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  font-weight: 700;
-  padding: 12px;
-  text-align: center;
-}
-
-.settings-backup-button {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-.settings-backup-import {
-  background: rgba(34, 211, 238, 0.1);
-  border-color: rgba(34, 211, 238, 0.3);
-  color: #22d3ee;
-}
-
 /* ── Saved Periods ── */
 
 .settings-save-period-btn {
@@ -434,20 +404,6 @@ label,
 
   .settings-rate-note strong {
     font-size: 14px;
-  }
-
-  .settings-backup-title {
-    padding-top: 12px;
-  }
-
-  .settings-backup-actions {
-    gap: 8px;
-  }
-
-  .settings-backup-button,
-  .settings-backup-import {
-    font-size: 12px;
-    padding: 10px;
   }
 
   .settings-position-row {

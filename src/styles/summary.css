@@ -2,6 +2,54 @@
    Summary / Breakdown — Mobile
    ══════════════════════════════════════ */
 
+.summary-shell {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.summary-toolbar {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto 1fr auto;
+}
+
+.summary-toolbar strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.summary-nav {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  min-height: 42px;
+  padding: 0 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.summary-nav:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@media (hover: hover) {
+  .summary-nav:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
 .breakdown {
   /* Frosted glass */
   background: rgba(255, 255, 255, 0.05);
@@ -9,7 +57,6 @@
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-md);
-  margin-top: 12px;
   padding: 16px;
   animation: fade-in-up var(--duration-slow) var(--ease-out) both;
   animation-delay: 100ms;
@@ -75,6 +122,20 @@
 }
 
 @media (max-width: 380px) {
+  .summary-toolbar {
+    gap: 6px;
+  }
+
+  .summary-toolbar strong {
+    font-size: 13px;
+  }
+
+  .summary-nav {
+    min-height: 38px;
+    font-size: 13px;
+    padding: 0 8px;
+  }
+
   .breakdown {
     padding: 12px;
   }
