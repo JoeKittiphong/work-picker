@@ -278,6 +278,59 @@ label,
   color: #22d3ee;
 }
 
+/* ── Saved Periods ── */
+
+.settings-save-period-btn {
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px dashed rgba(34, 211, 238, 0.35);
+  border-radius: 8px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  text-align: center;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.settings-save-period-btn:active {
+  background: rgba(34, 211, 238, 0.16);
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+.settings-saved-periods-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.settings-saved-periods-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-saved-period-delete-btn {
+  align-items: center;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  color: rgba(239, 68, 68, 0.8);
+  cursor: pointer;
+  display: flex;
+  font-size: 16px;
+  justify-content: center;
+  padding: 0 14px;
+  transition: background var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.settings-saved-period-delete-btn:active {
+  background: rgba(239, 68, 68, 0.18);
+}
+
 .rate-note {
   align-items: center;
   /* Frosted glass */

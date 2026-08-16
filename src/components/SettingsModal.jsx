@@ -4,7 +4,18 @@ import AppModal from './AppModal'
 import NumberField from './NumberField'
 import DateField from './DateField'
 
-function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, payroll, settings }) {
+function formatPeriodLabel(start, end) {
+  const fmt = (d) => {
+    const [y, m, dd] = d.split('-')
+    return `${dd}/${m}/${y.slice(2)}`
+  }
+  return `${fmt(start)} — ${fmt(end)}`
+}
+
+function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, onSavePeriod, onLoadPeriod, onDeletePeriod, payroll, settings }) {
+  const hasPeriod = Boolean(settings.periodStart && settings.periodEnd)
+  const savedPeriods = settings.savedPeriods ?? []
+
   return (
     <AppModal
       dateHint="เปอร์เซ็นต์จะคิดจากเงินเดือนฐาน"
@@ -25,6 +36,53 @@ function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, p
             onChange={(value) => onUpdate('periodEnd', value)}
           />
         </div>
+
+        {savedPeriods.length > 0 && (
+          <div className="settings-saved-periods-row">
+            <select
+              className="settings-saved-periods-select"
+              value={
+                savedPeriods.find(
+                  (p) => p.start === settings.periodStart && p.end === settings.periodEnd,
+                )?.id ?? ''
+              }
+              onChange={(e) => {
+                const period = savedPeriods.find((p) => p.id === e.target.value)
+                if (period) onLoadPeriod(period)
+              }}
+            >
+              <option value="" disabled>เลือกช่วงเวลาที่บันทึกไว้</option>
+              {savedPeriods.map((period) => (
+                <option key={period.id} value={period.id}>
+                  {formatPeriodLabel(period.start, period.end)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="settings-saved-period-delete-btn"
+              onClick={() => {
+                const active = savedPeriods.find(
+                  (p) => p.start === settings.periodStart && p.end === settings.periodEnd,
+                )
+                if (active) onDeletePeriod(active.id)
+              }}
+              aria-label="ลบช่วงที่เลือก"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {hasPeriod && (
+          <button
+            type="button"
+            className="settings-save-period-btn"
+            onClick={onSavePeriod}
+          >
+            💾 บันทึกช่วงนี้
+          </button>
+        )}
 
         <div className="settings-pay-row">
           <div className="settings-section-title">รายได้และรายการหัก</div>
@@ -107,3 +165,4 @@ function SettingsModal({ isPrivacyMode, onClose, onUpdate, onExport, onImport, p
 }
 
 export default memo(SettingsModal)
+

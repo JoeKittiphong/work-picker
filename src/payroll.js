@@ -9,7 +9,7 @@ export const otTypes = {
   ot2015: { label: '20.15', rate: 1.5, hours: 3, tone: 'green' },
   ot2215: { label: '22.15', rate: 1.5, hours: 5, tone: 'green' },
   ot0015: { label: '00.15', rate: 1.5, hours: 7, tone: 'green' },
-  morning: { label: 'morning', rate: 1.5, hours: 13, tone: 'yellow' },
+  morning: { label: 'morning', rate: 1.5, hours: 13.5, tone: 'yellow' },
   holiday: { label: 'วันหยุด', tone: 'red' },
 }
 
@@ -31,6 +31,7 @@ export const defaultSettings = {
   providentFundPercent: 0,
   periodStart: '',
   periodEnd: '',
+  savedPeriods: [],
 }
 
 function toLocalDateKey(date) {

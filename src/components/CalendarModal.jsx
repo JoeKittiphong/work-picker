@@ -156,6 +156,7 @@ function CalendarModal({
   onClose,
   settings,
   onDateSelect,
+  onShiftPeriod,
 }) {
   const hourlyRate = getHourlyRate(settings)
   const showRangeView = Boolean(settings.periodStart && settings.periodEnd)
@@ -243,9 +244,23 @@ function CalendarModal({
         {showRangeView ? (
           <>
             <div className="calendar-toolbar">
+              <button
+                type="button"
+                className="calendar-nav"
+                onClick={() => onShiftPeriod(-1)}
+              >
+                ก่อนหน้า
+              </button>
               <strong>
                 {formatShortDateLabel(settings.periodStart)} - {formatShortDateLabel(settings.periodEnd)}
               </strong>
+              <button
+                type="button"
+                className="calendar-nav"
+                onClick={() => onShiftPeriod(1)}
+              >
+                ถัดไป
+              </button>
             </div>
 
             {rangeSections.map((section) => {

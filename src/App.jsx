@@ -83,6 +83,83 @@ function App() {
     saveSettings(nextSettings)
   }, [settings])
 
+  const savePeriod = useCallback(() => {
+    if (!settings.periodStart || !settings.periodEnd) return
+    const existing = (settings.savedPeriods ?? []).some(
+      (p) => p.start === settings.periodStart && p.end === settings.periodEnd,
+    )
+    if (existing) {
+      showToast('ช่วงเวลานี้ถูกบันทึกไว้แล้ว')
+      return
+    }
+    const newPeriod = {
+      id: crypto.randomUUID(),
+      start: settings.periodStart,
+      end: settings.periodEnd,
+      salary: settings.salary,
+      welfare: settings.welfare,
+      diligence: settings.diligence,
+      position: settings.position,
+      otherIncome: settings.otherIncome,
+      deductions: settings.deductions,
+      socialSecurityPercent: settings.socialSecurityPercent,
+      providentFundPercent: settings.providentFundPercent,
+    }
+    const nextSettings = {
+      ...settings,
+      savedPeriods: [...(settings.savedPeriods ?? []), newPeriod],
+    }
+    setSettings(nextSettings)
+    saveSettings(nextSettings)
+    showToast('บันทึกช่วงเวลาแล้ว')
+  }, [settings, showToast])
+
+  const loadPeriod = useCallback((period) => {
+    const nextSettings = {
+      ...settings,
+      periodStart: period.start,
+      periodEnd: period.end,
+      salary: period.salary ?? settings.salary,
+      welfare: period.welfare ?? settings.welfare,
+      diligence: period.diligence ?? settings.diligence,
+      position: period.position ?? settings.position,
+      otherIncome: period.otherIncome ?? settings.otherIncome,
+      deductions: period.deductions ?? settings.deductions,
+      socialSecurityPercent: period.socialSecurityPercent ?? settings.socialSecurityPercent,
+      providentFundPercent: period.providentFundPercent ?? settings.providentFundPercent,
+    }
+    setSettings(nextSettings)
+    saveSettings(nextSettings)
+  }, [settings])
+
+  const deletePeriod = useCallback((id) => {
+    const nextSettings = {
+      ...settings,
+      savedPeriods: (settings.savedPeriods ?? []).filter((p) => p.id !== id),
+    }
+    setSettings(nextSettings)
+    saveSettings(nextSettings)
+  }, [settings])
+
+  const shiftPeriod = useCallback((direction) => {
+    if (!settings.periodStart || !settings.periodEnd) return
+    const start = new Date(settings.periodStart)
+    const end = new Date(settings.periodEnd)
+    const diffMs = end.getTime() - start.getTime()
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1
+    const shiftMs = diffDays * 24 * 60 * 60 * 1000 * direction
+    const newStart = new Date(start.getTime() + shiftMs)
+    const newEnd = new Date(end.getTime() + shiftMs)
+    const toKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const nextSettings = {
+      ...settings,
+      periodStart: toKey(newStart),
+      periodEnd: toKey(newEnd),
+    }
+    setSettings(nextSettings)
+    saveSettings(nextSettings)
+  }, [settings])
+
   const addEntry = useCallback((entry) => {
     const duplicateEntry = entries.some((existingEntry) => existingEntry.date === entry.date)
     if (duplicateEntry) {
@@ -286,6 +363,7 @@ function App() {
           onClose={() => setActiveModal(null)}
           settings={settings}
           onDateSelect={handleCalendarDateSelect}
+          onShiftPeriod={shiftPeriod}
         />
       )}
 
@@ -321,6 +399,9 @@ function App() {
           onUpdate={updateSettings}
           onExport={handleExport}
           onImport={handleImport}
+          onSavePeriod={savePeriod}
+          onLoadPeriod={loadPeriod}
+          onDeletePeriod={deletePeriod}
           payroll={payroll}
           settings={settings}
         />
